@@ -92,6 +92,11 @@ int main() {
         }
     }
 
+    // Problem area with empty file
+    if(max_ind == 0L) {
+        printf("Full sum: 0\nFirst 10 digits: 0\n");
+        return 0;
+    }
     while(*max_ind == '0') {
         max_ind--;
     }
