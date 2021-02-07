@@ -6,7 +6,7 @@
 #define BUFLEN 50
 #define FINALLEN 8192
 
-long max_ind = 0;
+char *max_ind = 0L;
 
 void addCarry(char finalBuf[FINALLEN], char remainder) {
     //std::cout << "Carry: " << (int)remainder << std::endl;
@@ -19,7 +19,7 @@ void addCarry(char finalBuf[FINALLEN], char remainder) {
         addCarry(++finalBuf, carry);
     }
 
-    max_ind = std::max(max_ind, (long)finalBuf);
+    max_ind = std::max(max_ind, finalBuf);
 }
 
 void add(char buf1[BUFLEN], char finalBuf[FINALLEN]) {
@@ -35,7 +35,7 @@ void add(char buf1[BUFLEN], char finalBuf[FINALLEN]) {
     if(carry > 0) {
         addCarry(++finalBuf, carry);
     }
-    max_ind = std::max(max_ind, (long)finalBuf);
+    max_ind = std::max(max_ind, finalBuf);
 }
 
 void addBuf(char buf1[BUFLEN], char finalBuf[FINALLEN]) {
@@ -78,16 +78,8 @@ int main() {
         // https://stackoverflow.com/questions/1399666/attaching-char-buffer-to-vectorchar-in-stl
         std::copy(buf1,buf1+count,std::back_inserter(bigInt));
     }
-
     
-    std::string s(bigInt.begin(), bigInt.end());
-    //std::cout << s;
-
-    //return 0;
-    
-    
-    int len = 0;
-
+    size_t len = 0;
     for (std::vector<char>::reverse_iterator i = bigInt.rbegin(); i != bigInt.rend(); ++i) { 
         char num = *i;
         buf1[len++] = num;
@@ -100,24 +92,24 @@ int main() {
         }
     }
 
-    //std::cout << "Bop: " << max_ind-(long)finalBuf + 1 << "\n";
+    while(*max_ind == '0') {
+        max_ind--;
+    }
 
-    std::string s2;
-    s2.assign(finalBuf, max_ind-(long)finalBuf + 1);
-    std::reverse(s2.begin(), s2.end());
-    std::cout << "Full sum: " << s2 << std::endl;
+    printf("Full sum: ");
 
-    std::cout << "First 10 digits: ";
-
-    int last_ind = std::min(10L, max_ind-(long)finalBuf + 1);
-    for(int i = 0; i < last_ind; i++) {
-        std::putc(s2.at(i), stdout);
+    for(char *c = max_ind; c >= finalBuf; c--) {
+        std::putc(*c, stdout);
     }
     std::putc('\n', stdout);
-    /*
-    for (std::vector<char>::reverse_iterator i = bigInt.rbegin(); i != bigInt.rend(); ++i) { 
-        char num = *i;
 
-    } 
-    */
+    printf("First 10 digits: ");
+
+    int count = 0;
+    for(char *c = max_ind; count < 10 && c >= finalBuf; c--, count++) {
+        std::putc(*c, stdout);
+    }
+    std::putc('\n', stdout);
+
+    return 0;
 }
