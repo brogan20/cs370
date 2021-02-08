@@ -8,58 +8,51 @@
 #define BUFLEN 1024
 #define FINALLEN 53 // 200 lines of 50-length 9s needs 53 chars
 
-char* addCarry(char finalBuf[FINALLEN], char remainder, char *max_ind) {
+void addCarry(char finalBuf[FINALLEN], char remainder, char *max_ind) {
     char sum = *finalBuf - '0' + remainder;
     *finalBuf = sum % 10 + '0';
 
     char carry = sum / 10;
     if(carry > 0) {
-        max_ind = std::max(addCarry(++finalBuf, carry, max_ind), max_ind);
+        addCarry(++finalBuf, carry, max_ind);
     }
-
-    return std::max(max_ind, finalBuf);
 }
 
-char* add(char *buf1, char finalBuf[FINALLEN], char *max_ind) {
+void add(char *buf1, char finalBuf[FINALLEN], char *max_ind) {
     char sum = (*buf1 - '0') + (*finalBuf - '0');
     *finalBuf = sum % 10 + '0';
 
     char carry = sum / 10;
     if(carry > 0) {
-        max_ind = std::max(addCarry(++finalBuf, carry, max_ind), max_ind);
+        addCarry(++finalBuf, carry, max_ind);
     }
-    return std::max(max_ind, finalBuf);
 }
 
-char* addBuf(char *buf1, char finalBuf[FINALLEN]) {
+void addBuf(char *buf1, char finalBuf[FINALLEN]) {
     std::string s(buf1);
-    char *max_ind = 0UL;
+    char *max_ind = finalBuf;
 
     while(*buf1 != '\n') {
-        max_ind = std::max(add(buf1, finalBuf, finalBuf), max_ind);
+        add(buf1, finalBuf, finalBuf);
         buf1++;
         finalBuf++;
     }
-
-    return max_ind;
 }
 
-char* addBuf_ind(char *buf1, char finalBuf[FINALLEN], char *limit) {
+void addBuf_ind(char *buf1, char finalBuf[FINALLEN]) {
     std::string s(buf1);
-    char *max_ind = 0UL;
-
-    while(buf1 <= limit) {
-        max_ind = std::max(add(buf1, finalBuf, finalBuf), max_ind);
+    char *max_ind = finalBuf;
+    char *len = finalBuf + FINALLEN - 1;
+    while(buf1 <= len) {
+        add(buf1, finalBuf, finalBuf);
         buf1++;
         finalBuf++;
     }
-
-    return max_ind;
 }
 
-char* addInts(char finalBuf[FINALLEN], std::reverse_iterator<std::vector<char>::iterator> begin, std::reverse_iterator<std::vector<char>::iterator> end) {
+void addInts(char finalBuf[FINALLEN], std::reverse_iterator<std::vector<char>::iterator> begin, std::reverse_iterator<std::vector<char>::iterator> end) {
     char buf1[BUFLEN];
-    char *max_ind = 0UL;
+    char *max_ind = finalBuf;
     size_t len = 0;
 
     for (auto it = begin; it != end; ++it) { 
@@ -67,13 +60,11 @@ char* addInts(char finalBuf[FINALLEN], std::reverse_iterator<std::vector<char>::
         buf1[len++] = num;
 
         if(num == '\n') {
-            max_ind = std::max(addBuf(buf1, finalBuf), max_ind);
+            addBuf(buf1, finalBuf);
             
             len = 0;
         }
     }
-
-    return max_ind;
 }
 
 int main() {
@@ -113,31 +104,28 @@ int main() {
 
     if(halfIt != bigInt.rend() && std::thread::hardware_concurrency() > 1) {
         // We can do multithreading!
-        std::future<char*> fut = std::async (std::launch::async, addInts, finalBuf, bigInt.rbegin(), halfIt+1);
+        std::future<void> fut = std::async (std::launch::async, addInts, finalBuf, bigInt.rbegin(), halfIt+1);
         //char *max_ind1 = addInts(finalBuf, bigInt.rbegin(), halfIt+1);
-        char *max_ind2 = addInts(finalBuf2, halfIt, bigInt.rend());
-        char *max_ind1 = fut.get();
+        addInts(finalBuf2, halfIt, bigInt.rend());
+        fut.get();
 
-        if(max_ind1 > max_ind2) {
-            max_ind = addBuf_ind(finalBuf2, finalBuf, max_ind2);
-            largerBuf = finalBuf;
-        }
-        else {
-            max_ind = addBuf_ind(finalBuf, finalBuf2, max_ind1);
-            largerBuf = finalBuf2;
-        }
+        addBuf_ind(finalBuf, finalBuf2);
+        largerBuf = finalBuf2;
     }
     else {
-        max_ind = addInts(finalBuf, bigInt.rbegin(), bigInt.rend());
+        addInts(finalBuf, bigInt.rbegin(), bigInt.rend());
         largerBuf = finalBuf;
     }
 
-    if(max_ind == 0L) {
-        printf("Full sum: 0\nFirst 10 digits: 0\n");
-        return 0;
-    }
+    max_ind = largerBuf + FINALLEN - 1;
+
     while(*max_ind == '0') {
         max_ind--;
+    }
+
+    if(max_ind < largerBuf) {
+        printf("Full sum: 0\nFirst 10 digits: 0\n");
+        return 0;
     }
 
     printf("Full sum: ");
