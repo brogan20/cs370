@@ -1,0 +1,2 @@
+Full sum: 1239253761
+First 10 digits: 1239253761
