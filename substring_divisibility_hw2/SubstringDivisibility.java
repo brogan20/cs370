@@ -5,6 +5,46 @@ public class SubstringDivisibility {
 
     public static void main(String[] args) {
 
+        // Heap's algorithm for generating all permutations
+        // https://en.wikipedia.org/wiki/Heap%27s_algorithm
+        int[] a = { 1, 2, 3 };
+        int n = a.length;
+
+        int[] c = new int[a.length];
+
+        // Use first combo of a
+
+        for (int b : a) {
+            System.out.print(Integer.toString(b) + " ");
+        }
+        System.out.println();
+
+        int i = 0;
+        while (i < n) {
+            if (c[i] < i) {
+                if (i % 2 == 0) {
+                    int tmp = a[i];
+                    a[i] = a[0];
+                    a[0] = tmp;
+                } else {
+                    int tmp = a[i];
+                    a[i] = a[c[i]];
+                    a[c[i]] = tmp;
+                }
+
+                // Use new combination of A
+                for (int b : a) {
+                    System.out.print(Integer.toString(b) + " ");
+                }
+                System.out.println();
+
+                c[i] += 1;
+                i = 0;
+            } else {
+                c[i] = 0;
+                i += 1;
+            }
+        }
     }
 
 }
