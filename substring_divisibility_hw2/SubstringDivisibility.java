@@ -4,16 +4,18 @@
 public class SubstringDivisibility {
 
     public static void main(String[] args) {
+        int[] a = new int[args[0].length()];
+        for (int i = 0; i < a.length; i++) {
+            a[i] = args[0].charAt(i) - '0';
+        }
 
         // Heap's algorithm for generating all permutations
         // https://en.wikipedia.org/wiki/Heap%27s_algorithm
-        int[] a = { 1, 2, 3 };
         int n = a.length;
 
         int[] c = new int[a.length];
 
-        // Use first combo of a
-
+        // Use first permutation of a
         for (int b : a) {
             System.out.print(Integer.toString(b) + " ");
         }
