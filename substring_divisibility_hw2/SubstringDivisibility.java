@@ -3,14 +3,14 @@
 // Pledge: I pledge my honor that I have abided by the Stevens Honor System.
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
-import java.util.*;
 
 public class SubstringDivisibility {
 
     private static long sum = 0;
     private static int[] divisors = { 0, 0, 0, 2, 3, 5, 7, 11, 13, 17 };
+    static BufferedWriter output = new BufferedWriter(new OutputStreamWriter(System.out));
 
-    private static void processPermutation(int[] a) {
+    private static void processPermutation(int[] a) throws Exception {
         // https://stackoverflow.com/questions/41271299/how-can-i-get-the-first-two-digits-of-a-number
         // Based on this we decided to just stick with processing in lists
 
@@ -26,10 +26,10 @@ public class SubstringDivisibility {
 
         long fullNum = 0;
         for (int i : a) {
-            System.out.print(i);
+            output.write(i);
             fullNum = fullNum * 10 + i;
         }
-        System.out.println();
+        output.newLine();
         sum += fullNum;
     }
 
@@ -74,8 +74,9 @@ public class SubstringDivisibility {
                 i += 1;
             }
         }
-        System.out.print("Sum: ");
-        System.out.println(sum);
+        output.write("Sum: ");
+        output.write(Long.toString(i));
+        output.newLine();
         System.out.printf("Elapsed time: %.6f ms\n", (System.nanoTime() - start) / 1e6);
 
     }
