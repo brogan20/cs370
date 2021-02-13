@@ -17,13 +17,15 @@ public class SubstringDivisibility {
         // Start with d2d3d4 as we're guarenteed to have a list where 4 <= len(a) <= 10
 
         for (int i = 3; i < a.length; i++) {
-            int currNum = a[i - 2] * 100 + a[i - 1] * 10 + a[i];
+            int two = (a[i-1] << 1) + (a[i-1] << 3);
+            int three = (a[i-2] << 6) + (a[i-2] << 5) + (a[i-2] << 2);
+            int currNum = three + two + a[i];
             if (currNum % divisors[i] != 0) {
                 return;
             }
-
         }
 
+        //printing out the values and also finding the sum
         long fullNum = 0;
         for (int i : a) {
             output.write(i + '0');
