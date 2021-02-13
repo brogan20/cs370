@@ -7,8 +7,8 @@ import java.util.*;
 
 public class SubstringDivisibility {
 
-    private static HashSet<Integer> resultSet = new HashSet<>();
-    private static int sum = 0;
+    private static HashSet<Long> resultSet = new HashSet<>();
+    private static long sum = 0;
 
     private static void processPermutation(int[] a) {
         // https://stackoverflow.com/questions/41271299/how-can-i-get-the-first-two-digits-of-a-number
@@ -58,10 +58,12 @@ public class SubstringDivisibility {
 
         }
 
-        int fullNum = 0;
+        long fullNum = 0;
         for (int i : a) {
+            System.out.print(i);
             fullNum = fullNum * 10 + i;
         }
+        System.out.println();
         sum += fullNum;
         resultSet.add(fullNum);
     }
@@ -109,7 +111,7 @@ public class SubstringDivisibility {
         }
         System.out.print("Sum: ");
         System.out.println(sum);
-        resultSet.forEach(System.out::println);
+        //resultSet.forEach(System.out::println);
         System.out.printf("Elapsed time: %.6f ms\n", (System.nanoTime() - start) / 1e6);
 
     }
