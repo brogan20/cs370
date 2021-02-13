@@ -7,7 +7,6 @@ import java.util.*;
 
 public class SubstringDivisibility {
 
-    private static HashSet<Long> resultSet = new HashSet<>();
     private static long sum = 0;
     private static int[] divisors = { 0, 0, 0, 2, 3, 5, 7, 11, 13, 17 };
 
@@ -32,7 +31,6 @@ public class SubstringDivisibility {
         }
         System.out.println();
         sum += fullNum;
-        resultSet.add(fullNum);
     }
 
     public static void main(String[] args) throws Exception {
@@ -78,7 +76,6 @@ public class SubstringDivisibility {
         }
         System.out.print("Sum: ");
         System.out.println(sum);
-        // resultSet.forEach(System.out::println);
         System.out.printf("Elapsed time: %.6f ms\n", (System.nanoTime() - start) / 1e6);
 
     }
