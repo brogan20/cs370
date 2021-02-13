@@ -26,7 +26,7 @@ public class SubstringDivisibility {
 
         long fullNum = 0;
         for (int i : a) {
-            output.write(i);
+            output.write(i + '0');
             fullNum = fullNum * 10 + i;
         }
         output.newLine();
@@ -75,8 +75,9 @@ public class SubstringDivisibility {
             }
         }
         output.write("Sum: ");
-        output.write(Long.toString(i));
+        output.write(Long.toString(sum));
         output.newLine();
+        output.flush();
         System.out.printf("Elapsed time: %.6f ms\n", (System.nanoTime() - start) / 1e6);
 
     }
