@@ -9,6 +9,7 @@ public class SubstringDivisibility {
 
     private static HashSet<Long> resultSet = new HashSet<>();
     private static long sum = 0;
+    private static int[] divisors = { 0, 0, 0, 2, 3, 5, 7, 11, 13, 17 };
 
     private static void processPermutation(int[] a) {
         // https://stackoverflow.com/questions/41271299/how-can-i-get-the-first-two-digits-of-a-number
@@ -18,42 +19,8 @@ public class SubstringDivisibility {
 
         for (int i = 3; i < a.length; i++) {
             int currNum = a[i - 2] * 100 + a[i - 1] * 10 + a[i];
-            switch (i) {
-                case 3:
-                    if (currNum % 2 != 0) {
-                        return;
-                    }
-                    break;
-                case 4:
-                    if (currNum % 3 != 0) {
-                        return;
-                    }
-                    break;
-                case 5:
-                    if (currNum % 5 != 0) {
-                        return;
-                    }
-                    break;
-                case 6:
-                    if (currNum % 7 != 0) {
-                        return;
-                    }
-                    break;
-                case 7:
-                    if (currNum % 11 != 0) {
-                        return;
-                    }
-                    break;
-                case 8:
-                    if (currNum % 13 != 0) {
-                        return;
-                    }
-                    break;
-                case 9:
-                    if (currNum % 17 != 0) {
-                        return;
-                    }
-                    break;
+            if (currNum % divisors[i] != 0) {
+                return;
             }
 
         }
@@ -111,7 +78,7 @@ public class SubstringDivisibility {
         }
         System.out.print("Sum: ");
         System.out.println(sum);
-        //resultSet.forEach(System.out::println);
+        // resultSet.forEach(System.out::println);
         System.out.printf("Elapsed time: %.6f ms\n", (System.nanoTime() - start) / 1e6);
 
     }
