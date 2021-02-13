@@ -1,0 +1,25 @@
+Project Euler Problem 3
+Largest Prime Fac
+
+So prime factors go up until the square root of the number, then it just repeats
+So you only need to go up until the square root
+
+36
+
+1 36
+2 18
+3 12
+4 9
+6 6
+
+maxFactor   n   i   [2, 2, 3, 3]
+6           36  2
+4           18  2
+3           9   3
+1           3
+
+maxFactor is the square root of n rounded down (floor)
+
+The issue is we dont know what values are prime
+but it's fast enoughb to just use odd numbers for i
+Continue when i <= the maxFactor
