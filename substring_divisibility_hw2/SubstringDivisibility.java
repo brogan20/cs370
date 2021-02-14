@@ -26,6 +26,7 @@ public class SubstringDivisibility {
         }
 
         //printing out the values and also finding the sum
+        // we're using a buffered writer to print output
         long fullNum = 0;
         for (int i : a) {
             output.write(i + '0');
@@ -33,16 +34,6 @@ public class SubstringDivisibility {
         }
         output.newLine();
         sum += fullNum;
-    }
-
-    static void reverse(int a[], int start, int end) {
-        while(start < end) {
-            int tmp = a[start];
-            a[start] = a[end];
-            a[end] = tmp;
-            start++;
-            end--;
-        }
     }
 
     public static void main(String[] args) throws Exception {
@@ -56,9 +47,6 @@ public class SubstringDivisibility {
 
         // Heap's algorithm for generating all autations
         // https://en.wikipedia.org/wiki/Heap%27s_algorithm
-        //int n = a.length;
-
-        //var c = new int[a.length];
 
         // Use first autation of a
         processautation(a);
@@ -98,10 +86,7 @@ public class SubstringDivisibility {
                 endInd--;
             }
 
-            //reverse(a, i+1, a.length-1);
-
             processautation(a);
-            //printArr(a);
 
             cont = false;
             for(int k = 0; k < a.length - 1; k++) {
@@ -111,33 +96,6 @@ public class SubstringDivisibility {
                 }
             }
         }
-
-        /*
-
-        int i = 0;
-        while (i < n) {
-            if (c[i] < i) {
-                if (i % 2 == 0) {
-                    int tmp = a[i];
-                    a[i] = a[0];
-                    a[0] = tmp;
-                } else {
-                    int tmp = a[i];
-                    a[i] = a[c[i]];
-                    a[c[i]] = tmp;
-                }
-
-                // Use new combination of A
-                processautation(a);
-
-                c[i] += 1;
-                i = 0;
-            } else {
-                c[i] = 0;
-                i += 1;
-            }
-        }
-        */
 
         output.write("Sum: ");
         output.write(Long.toString(sum));
