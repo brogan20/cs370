@@ -10,7 +10,7 @@ public class SubstringDivisibility {
     private static int[] divisors = { 0, 0, 0, 2, 3, 5, 7, 11, 13, 17 };
     static BufferedWriter output = new BufferedWriter(new OutputStreamWriter(System.out));
 
-    private static void processPermutation(int[] a) throws Exception {
+    private static void processautation(int[] a) throws Exception {
         // https://stackoverflow.com/questions/41271299/how-can-i-get-the-first-two-digits-of-a-number
         // Based on this we decided to just stick with processing in lists
 
@@ -35,6 +35,16 @@ public class SubstringDivisibility {
         sum += fullNum;
     }
 
+    static void reverse(int a[], int start, int end) {
+        while(start < end) {
+            int tmp = a[start];
+            a[start] = a[end];
+            a[end] = tmp;
+            start++;
+            end--;
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         long start = System.nanoTime();
 
@@ -44,14 +54,65 @@ public class SubstringDivisibility {
             a[i] = args[0].charAt(i) - '0';
         }
 
-        // Heap's algorithm for generating all permutations
+        // Heap's algorithm for generating all autations
         // https://en.wikipedia.org/wiki/Heap%27s_algorithm
-        int n = a.length;
+        //int n = a.length;
 
-        var c = new int[a.length];
+        //var c = new int[a.length];
 
-        // Use first permutation of a
-        processPermutation(a);
+        // Use first autation of a
+        processautation(a);
+
+        boolean cont = false;
+        for(int i = 0; i < a.length - 1; i++) {
+            if(a[i] < a[i+1]) {
+                cont = true;
+                break;
+            }
+        }
+
+        while(cont) {
+
+            int i;
+            for(i = a.length-2; i >= 0; i--) {
+                if(a[i] < a[i+1])
+                    break;
+            }
+
+            int j;
+            for(j = a.length-1; j >= 0; j--) {
+                if(a[i] < a[j])
+                    break;
+            }
+
+            int tmp = a[i];
+            a[i] = a[j];
+            a[j] = tmp;
+
+            int startInd = i+1, endInd = a.length - 1;
+            while(startInd < endInd) {
+                int tmp_ = a[startInd];
+                a[startInd] = a[endInd];
+                a[endInd] = tmp_;
+                startInd++;
+                endInd--;
+            }
+
+            //reverse(a, i+1, a.length-1);
+
+            processautation(a);
+            //printArr(a);
+
+            cont = false;
+            for(int k = 0; k < a.length - 1; k++) {
+                if(a[k] < a[k+1]) {
+                    cont = true;
+                    break;
+                }
+            }
+        }
+
+        /*
 
         int i = 0;
         while (i < n) {
@@ -67,7 +128,7 @@ public class SubstringDivisibility {
                 }
 
                 // Use new combination of A
-                processPermutation(a);
+                processautation(a);
 
                 c[i] += 1;
                 i = 0;
@@ -76,6 +137,8 @@ public class SubstringDivisibility {
                 i += 1;
             }
         }
+        */
+
         output.write("Sum: ");
         output.write(Long.toString(sum));
         output.newLine();
