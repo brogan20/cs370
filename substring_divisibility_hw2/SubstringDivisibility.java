@@ -18,15 +18,15 @@ public class SubstringDivisibility {
         // Start with d2d3d4 as we're guarenteed to have a list where 4 <= len(a) <= 10
 
         for (int i = 3; i < a.length; i++) {
-            int two = (a[i-1] << 1) + (a[i-1] << 3);
-            int three = (a[i-2] << 6) + (a[i-2] << 5) + (a[i-2] << 2);
+            int two = (a[i - 1] << 1) + (a[i - 1] << 3);
+            int three = (a[i - 2] << 6) + (a[i - 2] << 5) + (a[i - 2] << 2);
             int currNum = three + two + a[i];
             if (currNum % divisors[i] != 0) {
                 return;
             }
         }
 
-        //printing out the values and also finding the sum
+        // printing out the values and also finding the sum
         // we're using a buffered writer to print output
         long fullNum = 0;
         for (int i : a) {
@@ -47,43 +47,43 @@ public class SubstringDivisibility {
         }
         Arrays.sort(a);
 
-        // LexicographicPermute(n) from the 385 textbook 
+        // LexicographicPermute(n) from the 385 textbook
 
         // Use first autation of a
         processautation(a);
 
         boolean cont = false;
-        for(int i = 0; i < a.length - 1; i++) {
-            if(a[i] < a[i+1]) {
+        for (int i = 0; i < a.length - 1; i++) {
+            if (a[i] < a[i + 1]) {
                 cont = true;
                 break;
             }
         }
 
-        while(cont) {
+        while (cont) {
 
             // Largest index w/ value < next element
             int i;
-            for(i = a.length-2; i >= 0; i--) {
-                if(a[i] < a[i+1])
+            for (i = a.length - 2; i >= 0; i--) {
+                if (a[i] < a[i + 1])
                     break;
             }
-            
+
             // Largest index w/ value > a[i]
             int j;
-            for(j = a.length-1; j >= 0; j--) {
-                if(a[i] < a[j])
+            for (j = a.length - 1; j >= 0; j--) {
+                if (a[i] < a[j])
                     break;
             }
-            
+
             // Swap
             int tmp = a[i];
             a[i] = a[j];
             a[j] = tmp;
 
             // Reverse a from i+1 to end
-            int startInd = i+1, endInd = a.length - 1;
-            while(startInd < endInd) {
+            int startInd = i + 1, endInd = a.length - 1;
+            while (startInd < endInd) {
                 int tmp_ = a[startInd];
                 a[startInd] = a[endInd];
                 a[endInd] = tmp_;
@@ -92,12 +92,12 @@ public class SubstringDivisibility {
             }
 
             processautation(a);
-            
+
             // Check that last permutation has 2
             // consecutive elements in increasing order
             cont = false;
-            for(int k = 0; k < a.length - 1; k++) {
-                if(a[k] < a[k+1]) {
+            for (int k = 0; k < a.length - 1; k++) {
+                if (a[k] < a[k + 1]) {
                     cont = true;
                     break;
                 }
