@@ -3,6 +3,7 @@
 // Pledge: I pledge my honor that I have abided by the Stevens Honor System.
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
+import java.util.Arrays;
 
 public class SubstringDivisibility {
 
@@ -44,9 +45,9 @@ public class SubstringDivisibility {
         for (int i = 0; i < a.length; i++) {
             a[i] = args[0].charAt(i) - '0';
         }
+        Arrays.sort(a);
 
-        // Heap's algorithm for generating all autations
-        // https://en.wikipedia.org/wiki/Heap%27s_algorithm
+        // LexicographicPermute(n) from the 385 textbook 
 
         // Use first autation of a
         processautation(a);
@@ -61,22 +62,26 @@ public class SubstringDivisibility {
 
         while(cont) {
 
+            // Largest index w/ value < next element
             int i;
             for(i = a.length-2; i >= 0; i--) {
                 if(a[i] < a[i+1])
                     break;
             }
-
+            
+            // Largest index w/ value > a[i]
             int j;
             for(j = a.length-1; j >= 0; j--) {
                 if(a[i] < a[j])
                     break;
             }
-
+            
+            // Swap
             int tmp = a[i];
             a[i] = a[j];
             a[j] = tmp;
 
+            // Reverse a from i+1 to end
             int startInd = i+1, endInd = a.length - 1;
             while(startInd < endInd) {
                 int tmp_ = a[startInd];
@@ -87,7 +92,9 @@ public class SubstringDivisibility {
             }
 
             processautation(a);
-
+            
+            // Check that last permutation has 2
+            // consecutive elements in increasing order
             cont = false;
             for(int k = 0; k < a.length - 1; k++) {
                 if(a[k] < a[k+1]) {
