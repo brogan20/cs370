@@ -1,3 +1,6 @@
+// Names: Brogan Clements, Dominick DiMaggio, Ishaan Patel
+// Pledge: I pledge my honor that I have abided by the Stevens Honor System.
+
 #include <assert.h>
 #include <limits.h>
 #include <math.h>
@@ -20,6 +23,7 @@ typedef struct node {
 
 void init_node(trie_node*);
 
+// Initalizes a node with null values in the child
 void init_node(trie_node *n) {
     n->prefix_count = 0;
     
@@ -27,14 +31,17 @@ void init_node(trie_node *n) {
         n->children[i] = NULL;
     }
 }
- 
+
+// Adds a word into the trie node letter by letter
 void do_add(char *word, trie_node *n) {
     while(*word != '\0') {
+        // if the child node is null, allocate space for it and make it
         if(n->children[*word - 'a'] == NULL) {
             n->children[*word - 'a'] = (trie_node*) malloc(sizeof(trie_node));
             init_node(n->children[*word - 'a']);
         }
 
+        // go to the child node, update count and go to next letter
         n = n->children[*word - 'a'];
         n->prefix_count++;
         word++;
@@ -50,6 +57,7 @@ void do_add(char *word, trie_node *n) {
     n->prefix_count++;
 }
 
+// the find function
 int do_find(char *word, trie_node *n) {
     while(*word != '\0') {
         // Not in list
@@ -64,6 +72,27 @@ int do_find(char *word, trie_node *n) {
     return n->prefix_count;
 }
 
+// the search function
+int do_search(char *word, trie_node *n) {
+    while (*word != '\0') {
+        // if letter don't exist, return 0
+        if (n->children[*word - 'a'] == NULL) 
+            return 0;
+        
+        n = n->children[*word - 'a'];
+        word++;
+    }
+
+    // so if the complete word is there, then the node for the null character should exist
+    // and if it does exist, then it's prefix count would already be at least 1
+    // so you just need to check if its null
+    if (n->children[ALPHABET_LENGTH] == NULL)
+        return 0;
+    else
+        return 1;
+}
+
+// we have to recursively traverse the trie node and free everything inside it
 void free_helper(trie_node *n) {
     for(int i = 0; i <= ALPHABET_LENGTH; i++) {
         if(n->children[i] != NULL) {
@@ -100,14 +129,18 @@ void contacts(int queries) {
      * Write your code here.
      */
     
+    // initalize root of the trie node
     trie_node root;
     init_node(&root);
 
+    // Allocate space for the int array
     int *a = (int*)malloc(queries * sizeof(int));
     
     int find_count = 0;
+    int search_count = 0;
 
     char op[OPERATION_BUF_SIZE], word[NAME_BUF_SIZE];
+    //this uses the query value then decrements it
     while(queries-- > 0) {
         scanf("%s %s", op, word);
 
@@ -117,6 +150,9 @@ void contacts(int queries) {
         else if(strcmp(op, "find") == 0) {
             a[find_count++] = do_find(word, &root);
         }
+        else if (strcmp(op, "search") == 0)
+            //uses search count then increments it
+            a[search_count++] = do_search(word, &root);
         else {
             fprintf(stderr, "Input wrong type\n");
         }
@@ -124,7 +160,7 @@ void contacts(int queries) {
 
     free_memory(&root);
 
-    for(int i = 0; i < find_count; i++) {
+    for(int i = 0; i < search_count + find_count; i++) {
         printf("%d\n", a[i]);
     }
 
