@@ -6,8 +6,66 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define ALPHABET_LENGTH    26
+#define OPERATION_BUF_SIZE  7 /* Large enough to cover the word 'search' and '\0' */
+#define NAME_BUF_SIZE      22
+
+/* Basic trie node -- also, keep track of number of nodes below this one. */
+typedef struct node {
+    int prefix_count;
+    /* Allocate +1 for the the pointer to the end-of-string marker. Needed
+       for the search feature. */
+    struct node *children[ALPHABET_LENGTH + 1];
+} trie_node;
+
 char* readline();
 char** split_string(char*);
+void init_node(trie_node*);
+
+void init_node(trie_node *n) {
+    n->prefix_count = 0;
+    
+    for(int i = 0; i < ALPHABET_LENGTH+1; i++) {
+        n->children[i] = NULL;
+    }
+}
+ 
+ 
+void do_add(char *word, trie_node *n) {
+    while(*word != '\0') {
+        if(n->children[*word - 'a'] == NULL) {
+            n->children[*word - 'a'] = (trie_node*) malloc(sizeof(trie_node));
+            init_node(n->children[*word - 'a']);
+        }
+
+        n = n->children[*word - 'a'];
+        n->prefix_count++;
+        word++;
+    }
+
+    // Add end-of-string marker
+    if(n->children[ALPHABET_LENGTH] == NULL) {
+            n->children[ALPHABET_LENGTH] = (trie_node*) malloc(sizeof(trie_node));
+            init_node(n->children[ALPHABET_LENGTH]);
+        }
+
+    n = n->children[ALPHABET_LENGTH];
+    n->prefix_count++;
+}
+
+int do_find(char *word, trie_node *n) {
+    while(*word != '\0') {
+        // Not in list
+        if(n->children[*word - 'a'] == NULL) {
+            return 0;
+        }
+
+        n = n->children[*word - 'a'];
+        word++;
+    }
+
+    return n->prefix_count;
+}
 
 /*
  * Complete the contacts function below.
@@ -22,26 +80,38 @@ char** split_string(char*);
  * return a;
  *
  */
+ 
 int* contacts(int queries_rows, int queries_columns, char*** queries, int* result_count) {
     /*
      * Write your code here.
      */
-    fprintf(stderr, "I will be printed immediately: %d\n", queries_rows);
+    
+    trie_node root;
+    init_node(&root);
+
+    int *a = (int*)malloc(queries_rows * sizeof(int));
+    int find_count = 0;
     
     for(int i = 0; i < queries_rows; i++) {
         char **query = queries[i];
         
-        for(int j = 0; j < queries_columns; j++) {
-            char *q = query[j];
-            
-            for(int k = 0; k < strlen(q); k++) {
-                fprintf(stderr, "%c", q[k]);
-            }
-            fprintf(stderr, "\n");
+        char *op = query[0];
+        char *word = query[1];
+        
+        if(strcmp(op, "add") == 0) {
+            do_add(word, &root);
         }
+        else if(strcmp(op, "find") == 0) {
+            a[find_count++] = do_find(word, &root);
+            //find_count++;
+        }
+        else {
+            fprintf(stderr, "Input wrong type\n");
+        }           
     }
-    
-    return 0;
+
+    *result_count = find_count;
+    return a;
 }
 
 int main()
