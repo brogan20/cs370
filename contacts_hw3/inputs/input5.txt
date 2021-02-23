@@ -1,0 +1,6 @@
+5
+add a
+add ab
+add abc
+add abcd
+find a

@@ -1,0 +1,4 @@
+3
+add abc
+add bcd
+search bc

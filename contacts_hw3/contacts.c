@@ -9,9 +9,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define ALPHABET_LENGTH    26
-#define OPERATION_BUF_SIZE  7 /* Large enough to cover the word 'search' and '\0' */
-#define NAME_BUF_SIZE      22
+#define ALPHABET_LENGTH 26
+#define OPERATION_BUF_SIZE                                                     \
+    7 /* Large enough to cover the word 'search' and '\0' */
+#define NAME_BUF_SIZE 22
 
 /* Basic trie node -- also, keep track of number of nodes below this one. */
 typedef struct node {
@@ -21,23 +22,23 @@ typedef struct node {
     struct node *children[ALPHABET_LENGTH + 1];
 } trie_node;
 
-void init_node(trie_node*);
+void init_node(trie_node *);
 
 // Initalizes a node with null values in the child
 void init_node(trie_node *n) {
     n->prefix_count = 0;
-    
-    for(int i = 0; i <= ALPHABET_LENGTH; i++) {
+
+    for (int i = 0; i <= ALPHABET_LENGTH; i++) {
         n->children[i] = NULL;
     }
 }
 
 // Adds a word into the trie node letter by letter
 void do_add(char *word, trie_node *n) {
-    while(*word != '\0') {
+    while (*word != '\0') {
         // if the child node is null, allocate space for it and make it
-        if(n->children[*word - 'a'] == NULL) {
-            n->children[*word - 'a'] = (trie_node*) malloc(sizeof(trie_node));
+        if (n->children[*word - 'a'] == NULL) {
+            n->children[*word - 'a'] = (trie_node *)malloc(sizeof(trie_node));
             init_node(n->children[*word - 'a']);
         }
 
@@ -48,9 +49,9 @@ void do_add(char *word, trie_node *n) {
     }
 
     // Add end-of-string marker
-    if(n->children[ALPHABET_LENGTH] == NULL) {
-            n->children[ALPHABET_LENGTH] = (trie_node*) malloc(sizeof(trie_node));
-            init_node(n->children[ALPHABET_LENGTH]);
+    if (n->children[ALPHABET_LENGTH] == NULL) {
+        n->children[ALPHABET_LENGTH] = (trie_node *)malloc(sizeof(trie_node));
+        init_node(n->children[ALPHABET_LENGTH]);
     }
 
     n = n->children[ALPHABET_LENGTH];
@@ -59,9 +60,9 @@ void do_add(char *word, trie_node *n) {
 
 // the find function
 int do_find(char *word, trie_node *n) {
-    while(*word != '\0') {
+    while (*word != '\0') {
         // Not in list
-        if(n->children[*word - 'a'] == NULL) {
+        if (n->children[*word - 'a'] == NULL) {
             return 0;
         }
 
@@ -76,16 +77,16 @@ int do_find(char *word, trie_node *n) {
 int do_search(char *word, trie_node *n) {
     while (*word != '\0') {
         // if letter don't exist, return 0
-        if (n->children[*word - 'a'] == NULL) 
+        if (n->children[*word - 'a'] == NULL)
             return 0;
-        
+
         n = n->children[*word - 'a'];
         word++;
     }
 
-    // so if the complete word is there, then the node for the null character should exist
-    // and if it does exist, then it's prefix count would already be at least 1
-    // so you just need to check if its null
+    // so if the complete word is there, then the node for the null character
+    // should exist and if it does exist, then it's prefix count would already
+    // be at least 1 so you just need to check if its null
     if (n->children[ALPHABET_LENGTH] == NULL)
         return 0;
     else
@@ -94,8 +95,8 @@ int do_search(char *word, trie_node *n) {
 
 // we have to recursively traverse the trie node and free everything inside it
 void free_helper(trie_node *n) {
-    for(int i = 0; i <= ALPHABET_LENGTH; i++) {
-        if(n->children[i] != NULL) {
+    for (int i = 0; i <= ALPHABET_LENGTH; i++) {
+        if (n->children[i] != NULL) {
             free_helper(n->children[i]);
         }
     }
@@ -103,8 +104,8 @@ void free_helper(trie_node *n) {
 }
 
 void free_memory(trie_node *n) {
-    for(int i = 0; i <= ALPHABET_LENGTH; i++) {
-        if(n->children[i] != NULL) {
+    for (int i = 0; i <= ALPHABET_LENGTH; i++) {
+        if (n->children[i] != NULL) {
             free_helper(n->children[i]);
         }
     }
@@ -115,53 +116,65 @@ void free_memory(trie_node *n) {
  */
 
 /*
- * Please store the size of the integer array to be returned in result_count pointer. For example,
- * int a[3] = {1, 2, 3};
+ * Please store the size of the integer array to be returned in result_count
+ * pointer. For example, int a[3] = {1, 2, 3};
  *
  * *result_count = 3;
  *
  * return a;
  *
  */
- 
+
 void contacts(int queries) {
     /*
      * Write your code here.
      */
-    
+
     // initalize root of the trie node
     trie_node root;
     init_node(&root);
 
     // Allocate space for the int array
-    int *a = (int*)malloc(queries * sizeof(int));
-    
-    int find_count = 0;
-    int search_count = 0;
+    int *a = (int *)malloc(queries * sizeof(int));
+
+    int count = 0;
 
     char op[OPERATION_BUF_SIZE], word[NAME_BUF_SIZE];
-    //this uses the query value then decrements it
-    while(queries-- > 0) {
+    // this uses the query value then decrements it
+    while (queries-- > 0) {
         scanf("%s %s", op, word);
 
-        if(strcmp(op, "add") == 0) {
+        if (strcmp(op, "add") == 0) {
             do_add(word, &root);
-        }
-        else if(strcmp(op, "find") == 0) {
-            a[find_count++] = do_find(word, &root);
-        }
-        else if (strcmp(op, "search") == 0)
-            //uses search count then increments it
-            a[search_count++] = do_search(word, &root);
-        else {
+        } else if (strcmp(op, "find") == 0) {
+            a[count++] = do_find(word, &root);
+
+        } else if (strcmp(op, "search") == 0) {
+            // uses search count then increments it
+            // a[search_count++] = do_search(word, &root); - doesn't fully work
+            // as otherwise we can't differentiate between searches and finds
+            if (do_search(word, &root)) {
+                a[count++] = -1;
+            } else {
+                a[count++] = -2;
+            }
+        } else {
             fprintf(stderr, "Input wrong type\n");
         }
     }
 
     free_memory(&root);
 
-    for(int i = 0; i < search_count + find_count; i++) {
-        printf("%d\n", a[i]);
+    for (int i = 0; i < count; i++) {
+        // Uses the difference in values stored in a to determine which command
+        // it needs to print for
+        if (a[i] == -1) {
+            printf("yes\n");
+        } else if (a[i] == -2) {
+            printf("no\n");
+        } else {
+            printf("%d\n", a[i]);
+        }
     }
 
     free(a);

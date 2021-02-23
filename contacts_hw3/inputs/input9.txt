@@ -1,0 +1,4 @@
+3
+add cde
+add efg
+find e
