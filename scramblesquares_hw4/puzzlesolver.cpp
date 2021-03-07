@@ -382,7 +382,7 @@ int main()
     else if (g_solutions.size() == 1)
         std::cout << "1 unique solution found:\n";
     else
-        std::cout << g_solutions.size() << " solutions found:\n";
+        std::cout << g_solutions.size() << " unique solutions found:\n";
 
     for (char ** sol: g_solutions) {
         print_board(sol, lines, squares[0], squares[1], squares[2], squares[3]);
