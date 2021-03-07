@@ -68,16 +68,8 @@ int is_valid_board(char *board[11])
     return 1;
 }
 
-int num_from_addr(int lines, char *addr, char (*squares1)[11], char (*squares2)[11], char (*squares3)[11], char (*squares4)[11])
-{
-    for (int i = 0; i < 9; i++)
-    {
-        if (squares1[i] == addr || squares2[i] == addr || squares3[i] == addr || squares4[i] == addr)
-            return i + 1;
-        //return 9;
-    }
-
-    return -1;
+inline int num_from_addr(char *addr) {
+    return addr[8] + 1;
 }
 
 void print_board(char *board[9], int lines, char (*squares1)[11], char (*squares2)[11], char (*squares3)[11], char (*squares4)[11])
@@ -101,9 +93,9 @@ void print_board(char *board[9], int lines, char (*squares1)[11], char (*squares
     for (int i = 0; i < 7; i += 3)
     {
         std::cout << "+--------+--------+--------+\n";
-        int num1 = num_from_addr(lines, board[i], squares1, squares2, squares3, squares4),
-            num2 = num_from_addr(lines, board[i + 1], squares1, squares2, squares3, squares4),
-            num3 = num_from_addr(lines, board[i + 2], squares1, squares2, squares3, squares4);
+        int num1 = num_from_addr(board[i]),
+            num2 = num_from_addr(board[i + 1]),
+            num3 = num_from_addr(board[i + 2]);
 
         std::cout << "|" << num1 << "  " << board[i][0] << board[i][1] << "   |" << num2 << "  " << board[i + 1][0] << board[i + 1][1] << "   |" << num3 << "  " << board[i + 2][0] << board[i + 2][1] << "   |\n";
         std::cout << "|" << board[i][6] << board[i][7] << "    " << board[i][2] << board[i][3] << "|" << board[i + 1][6] << board[i + 1][7] << "    " << board[i + 1][2] << board[i + 1][3] << "|" << board[i + 2][6] << board[i + 2][7] << "    " << board[i + 2][2] << board[i + 2][3] << "|\n";
@@ -176,6 +168,26 @@ void solve(char *board[9], std::vector<bool> used, const int index, const int li
     }
 }
 
+bool are_rotations(char *board[9], char *board2[9]) {
+    return  board[0][8] == board2[2][8] && board[1][8] == board2[5][8] &&
+            board[2][8] == board2[8][8] && board[3][8] == board2[1][8] &&
+            board[4][8] == board2[4][8] && board[5][8] == board2[7][8] &&
+            board[6][8] == board2[0][8] && board[7][8] == board2[3][8] &&
+            board[8][8] == board2[6][8] ||
+
+            board[0][8] == board2[8][8] && board[1][8] == board2[7][8] &&
+            board[2][8] == board2[6][8] && board[3][8] == board2[5][8] &&
+            board[4][8] == board2[4][8] && board[5][8] == board2[3][8] &&
+            board[6][8] == board2[2][8] && board[7][8] == board2[1][8] &&
+            board[8][8] == board2[0][8] || 
+
+            board[0][8] == board2[6][8] && board[1][8] == board2[3][8] &&
+            board[2][8] == board2[0][8] && board[3][8] == board2[7][8] &&
+            board[4][8] == board2[4][8] && board[5][8] == board2[1][8] &&
+            board[6][8] == board2[8][8] && board[7][8] == board2[5][8] &&
+            board[8][8] == board2[2][8];
+}
+
 int main()
 {
     FILE *file = fopen("arrows.txt", "r");
@@ -211,7 +223,7 @@ int main()
     squares[0][lines][5] = '9';
     squares[0][lines][6] = 'Z';
     squares[0][lines][7] = '9';
-    squares[0][lines][8] = 0;
+    squares[0][lines][8] =  9;
     squares[0][lines][9] = '0';
     squares[0][lines][10] = '\0';
 
