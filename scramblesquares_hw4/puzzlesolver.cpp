@@ -179,8 +179,11 @@ void solve(char *board[9], std::vector<bool> used, const int index, const int li
                 if (are_rotations(copy, sol, squares1, squares2, squares3, squares4)) {
                     fresh = false;
                     // if the new board is smaller than the solution, replace the existing solution
-                    if (is_smaller(copy, sol))
+                    if (is_smaller(copy, sol)) {
+                        delete [] g_solutions.at(index);
                         g_solutions.at(index) = copy;
+                    }
+                        
                     break;
                 } 
                 index++;
