@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 
+std::vector<char **> g_solutions;
+
 void rotate_right(char *buf1, char *buf2)
 {
     //std::cerr << "Rotating " << buf1 << " to ";
@@ -106,6 +108,42 @@ void print_board(char *board[9], int lines, char (*squares1)[11], char (*squares
     std::cout << std::endl;
 }
 
+// checks if two boards are rotated versions of each other
+bool are_rotations(char *board[9], char *board2[9], char (*squares1)[11], char (*squares2)[11], char (*squares3)[11], char (*squares4)[11]) {
+    return  (board[0][8] == board2[2][8] && board[1][8] == board2[5][8] &&
+            board[2][8] == board2[8][8] && board[3][8] == board2[1][8] &&
+            board[4][8] == board2[4][8] && board[5][8] == board2[7][8] &&
+            board[6][8] == board2[0][8] && board[7][8] == board2[3][8] &&
+            board[8][8] == board2[6][8]) ||
+
+            (board[0][8] == board2[8][8] && board[1][8] == board2[7][8] &&
+            board[2][8] == board2[6][8] && board[3][8] == board2[5][8] &&
+            board[4][8] == board2[4][8] && board[5][8] == board2[3][8] &&
+            board[6][8] == board2[2][8] && board[7][8] == board2[1][8] &&
+            board[8][8] == board2[0][8]) || 
+
+            (board[0][8] == board2[6][8] && board[1][8] == board2[3][8] &&
+            board[2][8] == board2[0][8] && board[3][8] == board2[7][8] &&
+            board[4][8] == board2[4][8] && board[5][8] == board2[1][8] &&
+            board[6][8] == board2[8][8] && board[7][8] == board2[5][8] &&
+            board[8][8] == board2[2][8]);
+}
+
+// checks if the first board is smaller than the second
+// means if the first board has lowered number squares
+bool is_smaller(char *board[9], char *board2[9]) {
+    for (int i=0; i<9; i++) {
+        if (board[i][8] < board2[i][8]) {
+            return true;
+        }
+        else if (board[i][8] > board2[i][8]) {
+            return false;
+        }
+    }
+    // we shouldn't reach this statement
+    // that would mean both boards are identical
+    return true;
+}
 void solve(char *board[9], std::vector<bool> used, const int index, const int lines, char (*squares1)[11], char (*squares2)[11], char (*squares3)[11], char (*squares4)[11])
 {
     // Place one down, check if valid, continue
@@ -124,7 +162,46 @@ void solve(char *board[9], std::vector<bool> used, const int index, const int li
     }
     if (done)
     {
-        print_board(board, lines, squares1, squares2, squares3, squares4);
+        //make a new copy of the board
+        char **copy = new char*[9];
+        for(int i = 0; i < 9; i++) {
+            copy[i] = board[i];
+        }
+
+        //push solution to empty list
+        if (g_solutions.empty()) {
+            g_solutions.push_back(copy);
+        } else {
+            int index = 0;
+            bool fresh = true;
+            for (char ** sol: g_solutions) {
+                // if the new board is a rotation of a solution
+                if (are_rotations(copy, sol, squares1, squares2, squares3, squares4)) {
+                    fresh = false;
+                    // if the new board is smaller than the solution, replace the existing solution
+                    if (is_smaller(copy, sol))
+                        g_solutions.at(index) = copy;
+                    break;
+                } 
+                index++;
+            }
+            //if the new board is actually new, insert it in order
+            if (fresh) {
+                index = 0;
+                for (char ** sol: g_solutions) {
+                    if (is_smaller(copy, sol)) {
+                        g_solutions.insert(g_solutions.begin()+index, copy);
+                        break;
+                    }
+                    index++;
+                }
+                // if we haven't inserted the solution yet, put it at the end
+                if (index == g_solutions.size())
+                    g_solutions.push_back(copy);
+            }
+            else
+                delete [] copy;
+        }
         return;
     }
 
@@ -166,27 +243,7 @@ void solve(char *board[9], std::vector<bool> used, const int index, const int li
             used[i] = false;
         }
     }
-}
-
-bool are_rotations(char *board[9], char *board2[9]) {
-    return  board[0][8] == board2[2][8] && board[1][8] == board2[5][8] &&
-            board[2][8] == board2[8][8] && board[3][8] == board2[1][8] &&
-            board[4][8] == board2[4][8] && board[5][8] == board2[7][8] &&
-            board[6][8] == board2[0][8] && board[7][8] == board2[3][8] &&
-            board[8][8] == board2[6][8] ||
-
-            board[0][8] == board2[8][8] && board[1][8] == board2[7][8] &&
-            board[2][8] == board2[6][8] && board[3][8] == board2[5][8] &&
-            board[4][8] == board2[4][8] && board[5][8] == board2[3][8] &&
-            board[6][8] == board2[2][8] && board[7][8] == board2[1][8] &&
-            board[8][8] == board2[0][8] || 
-
-            board[0][8] == board2[6][8] && board[1][8] == board2[3][8] &&
-            board[2][8] == board2[0][8] && board[3][8] == board2[7][8] &&
-            board[4][8] == board2[4][8] && board[5][8] == board2[1][8] &&
-            board[6][8] == board2[8][8] && board[7][8] == board2[5][8] &&
-            board[8][8] == board2[2][8];
-}
+} 
 
 int main()
 {
@@ -275,13 +332,14 @@ int main()
     }
 
     // Put these on the edges
+    /*
     for (int i = 0; i < 26; i++)
     {
         if (pair_counts[i] < 0)
             std::cout << "Letter " << (char)('A' + i) << " has " << -1 * pair_counts[i] << " more starts than ends\n";
         else if (pair_counts[i] > 0)
             std::cout << "Letter " << (char)('A' + i) << " has " << pair_counts[i] << " less starts than ends\n";
-    }
+    } */
 
     std::cout << "Input tiles:\n";
     for (int i = 0; i < lines; i++)
@@ -292,6 +350,7 @@ int main()
             std::cout << squares[0][i][j] << squares[0][i][j + 1] << ", ";
         std::cout << squares[0][i][6] << squares[0][i][7] << ">\n";
     }
+    std::cout << "\n";
 
     // Array of pointers to squares
     char *board[9];
@@ -316,6 +375,19 @@ int main()
     //print_board(board, lines, squares[0], squares[1], squares[2], squares[3]);
 
     solve(board, used, lines, 4, squares[0], squares[1], squares[2], squares[3]);
+
+    // print out all the unique solutions
+    if (g_solutions.size() == 0)
+        std::cout << "No solution found.";
+    else if (g_solutions.size() == 1)
+        std::cout << "1 unique solution found:\n";
+    else
+        std::cout << g_solutions.size() << " solutions found:\n";
+
+    for (char ** sol: g_solutions) {
+        print_board(sol, lines, squares[0], squares[1], squares[2], squares[3]);
+        delete [] sol;
+    }
 
     //print_board(board, lines, squares[0], squares[1], squares[2], squares[3]);
 }
