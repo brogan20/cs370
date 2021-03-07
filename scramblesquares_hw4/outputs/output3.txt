@@ -1,0 +1,12 @@
+Input tiles:
+1. <A0, A1, B0, B1>
+2. <C0, C1, D0, D1>
+3. <A0, A1, B0, B1>
+4. <C0, C1, D0, D1>
+5. <A0, A1, B0, B1>
+6. <C0, C1, D0, D1>
+7. <A0, A1, B0, B1>
+8. <C0, C1, D0, D1>
+9. <A0, A1, B0, B1>
+
+No solution found.
