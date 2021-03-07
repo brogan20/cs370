@@ -378,7 +378,7 @@ int main()
 
     // print out all the unique solutions
     if (g_solutions.size() == 0)
-        std::cout << "No solution found.";
+        std::cout << "No solution found.\n";
     else if (g_solutions.size() == 1)
         std::cout << "1 unique solution found:\n";
     else
