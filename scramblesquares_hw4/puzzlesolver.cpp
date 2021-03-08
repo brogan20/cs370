@@ -228,9 +228,9 @@ int main()
             if (val != ',')
                 squares[0][i][count++] = val;
         }
-        // 8th bit is square number - 1
+        // 8th byte is square number - 1
         squares[0][i][8] = i;
-        // 9th bit is which rotation it is
+        // 9th byte is which rotation it is
         squares[0][i][9] = '0';
         squares[0][i][10] = '\0';
     }
@@ -305,7 +305,7 @@ int main()
 
     solve(board, used, 0, squares[0], squares[1], squares[2], squares[3]);
 
-    // print out all the unique solutions
+    // Print out all the unique solutions
     if (g_solutions.size() == 0)
         std::cout << "No solution found.\n";
     else if (g_solutions.size() == 1)
