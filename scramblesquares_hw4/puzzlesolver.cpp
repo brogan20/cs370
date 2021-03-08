@@ -298,8 +298,7 @@ int main()
     // Bit array specialization
     std::vector<bool> used;
     used.reserve(9);
-    for (int i = 0; i < 9; i++)
-    {
+    for (int i = 0; i < 9; i++) {
         used.push_back(false);
     }
 
