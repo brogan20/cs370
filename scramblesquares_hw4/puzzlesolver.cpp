@@ -162,6 +162,9 @@ void solve(char *board[9], std::vector<bool> used, const int index, const int li
     }
     if (done)
     {
+        if(!is_valid_board(board))
+            return;
+
         //make a new copy of the board
         char **copy = new char*[9];
         for(int i = 0; i < 9; i++) {
@@ -172,7 +175,7 @@ void solve(char *board[9], std::vector<bool> used, const int index, const int li
         if (g_solutions.empty()) {
             g_solutions.push_back(copy);
         } else {
-            int index = 0;
+            int idx = 0;
             bool fresh = true;
             for (char ** sol: g_solutions) {
                 // if the new board is a rotation of a solution
@@ -180,26 +183,26 @@ void solve(char *board[9], std::vector<bool> used, const int index, const int li
                     fresh = false;
                     // if the new board is smaller than the solution, replace the existing solution
                     if (is_smaller(copy, sol)) {
-                        delete [] g_solutions.at(index);
-                        g_solutions.at(index) = copy;
+                        delete [] g_solutions.at(idx);
+                        g_solutions.at(idx) = copy;
                     }
                         
                     break;
                 } 
-                index++;
+                idx++;
             }
             //if the new board is actually new, insert it in order
             if (fresh) {
-                index = 0;
+                idx = 0;
                 for (char ** sol: g_solutions) {
                     if (is_smaller(copy, sol)) {
-                        g_solutions.insert(g_solutions.begin()+index, copy);
+                        g_solutions.insert(g_solutions.begin()+idx, copy);
                         break;
                     }
-                    index++;
+                    idx++;
                 }
                 // if we haven't inserted the solution yet, put it at the end
-                if (index == g_solutions.size())
+                if (idx == g_solutions.size())
                     g_solutions.push_back(copy);
             }
             else
