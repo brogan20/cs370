@@ -7,8 +7,6 @@
 #define NUM_ROTATIONS 4
 #define NUM_LINES 9
 
-std::vector<char **> g_solutions;
-
 // Start from the center and start snaking clockwise from the top
 int arr[]{4, 1, 2, 5, 8, 7, 6, 3, 0};
 
@@ -141,7 +139,7 @@ bool is_smaller(char *board[9], char *board2[9]) {
     // That would mean both boards are identical
     return true;
 }
-void solve(char *board[9], std::vector<bool> used, const int index, char squares[NUM_ROTATIONS][NUM_LINES+1][11]) {
+void solve(char *board[9], std::vector<bool> used, const int index, char squares[NUM_ROTATIONS][NUM_LINES+1][11], std::vector<char **> &g_solutions) {
     char    (*squares1)[11] = squares[0],
             (*squares2)[11] = squares[1],
             (*squares3)[11] = squares[2],
@@ -213,19 +211,19 @@ void solve(char *board[9], std::vector<bool> used, const int index, char squares
 
             board[modInd] = squares1[i];
             if (is_valid_board(board))
-                solve(board, used, index + 1, squares);
+                solve(board, used, index + 1, squares, g_solutions);
 
             board[modInd] = squares2[i];
             if (is_valid_board(board))
-                solve(board, used, index + 1, squares);
+                solve(board, used, index + 1, squares, g_solutions);
 
             board[modInd] = squares3[i];
             if (is_valid_board(board))
-                solve(board, used, index + 1, squares);
+                solve(board, used, index + 1, squares, g_solutions);
 
             board[modInd] = squares4[i];
             if (is_valid_board(board))
-                solve(board, used, index + 1, squares);
+                solve(board, used, index + 1, squares, g_solutions);
 
             // Clears board space
             board[modInd] = squares1[NUM_LINES];
@@ -323,7 +321,9 @@ int main()
     for (int i = 0; i < NUM_LINES; i++)
         used.push_back(false);
 
-    solve(board, used, 0, squares);
+    std::vector<char **> g_solutions;
+
+    solve(board, used, 0, squares, g_solutions);
 
     // Print out all the unique solutions
     if (g_solutions.size() == 0)
