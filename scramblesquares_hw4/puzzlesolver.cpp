@@ -65,14 +65,8 @@ int is_valid_board(char *board[11]) {
     return 1;
 }
 
-int num_from_addr(char *addr, char (*squares1)[11], char (*squares2)[11], char (*squares3)[11], char (*squares4)[11]) {
-    for(int i = 0; i < 9; i++) {
-        if(squares1[i] == addr || squares2[i] == addr || squares3[i] == addr || squares4[i] == addr)
-            return i+1;
-            //return 9;
-    }
-
-    return -1;
+int num_from_addr(char *addr) {
+    return addr[8] + 1;
 }
 
 void print_board(char *board[9], char squares[NUM_ROTATIONS][NUM_LINES+1][11]) {
@@ -85,17 +79,15 @@ void print_board(char *board[9], char squares[NUM_ROTATIONS][NUM_LINES+1][11]) {
     for (int i = 0; i < 7; i += 3)
     {
         std::cout << "+--------+--------+--------+\n";
-        int num1 = num_from_addr(board[i], squares1, squares2, squares3, squares4),
-            num2 = num_from_addr(board[i + 1], squares1, squares2, squares3, squares4),
-            num3 = num_from_addr(board[i + 2], squares1, squares2, squares3, squares4);
+        int num1 = num_from_addr(board[i]),
+            num2 = num_from_addr(board[i + 1]),
+            num3 = num_from_addr(board[i + 2]);
 
         std::cout << "|" << num1 << "  " << board[i][0] << board[i][1] << "   |" << num2 << "  " << board[i + 1][0] << board[i + 1][1] << "   |" << num3 << "  " << board[i + 2][0] << board[i + 2][1] << "   |\n";
         std::cout << "|" << board[i][6] << board[i][7] << "    " << board[i][2] << board[i][3] << "|" << board[i + 1][6] << board[i + 1][7] << "    " << board[i + 1][2] << board[i + 1][3] << "|" << board[i + 2][6] << board[i + 2][7] << "    " << board[i + 2][2] << board[i + 2][3] << "|\n";
         std::cout << "|   " << board[i][4] << board[i][5] << "   |   " << board[i + 1][4] << board[i + 1][5] << "   |   " << board[i + 2][4] << board[i + 2][5] << "   |\n";
     }
     std::cout << "+--------+--------+--------+\n";
-
-    std::cout << std::endl;
 }
 
 // Checks if two boards are rotated versions of each other
@@ -147,7 +139,9 @@ void solve(char *board[9], std::vector<bool> used, const int index, char squares
 
     // Place one down, check if valid, continue
     bool done = true;
-    int modInd = arr[index % NUM_LINES];
+
+    //int modInd = arr[index % NUM_LINES];
+    int modInd = index % NUM_LINES;
 
     for (int i = 0; i < used.size(); i++) {
         if (!used[i]) {
@@ -333,8 +327,14 @@ int main()
     else
         std::cout << g_solutions.size() << " unique solutions found:\n";
 
-    for (char ** sol: g_solutions) {
+    for(size_t i = 0; i < g_solutions.size()-1; i++) {
+        char ** sol = g_solutions[i];
         print_board(sol, squares);
+        std::cout << '\n';
         delete [] sol;
     }
+
+    char **sol = g_solutions[g_solutions.size()-1];
+    print_board(sol, squares);
+    delete [] sol;
 }
