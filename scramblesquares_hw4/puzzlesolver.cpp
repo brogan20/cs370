@@ -6,6 +6,9 @@
 
 std::vector<char **> g_solutions;
 
+// Start from the center and start snaking clockwise from the top
+int arr[]{4, 1, 2, 5, 8, 7, 6, 3, 0};
+
 // Copies board buf1 into buf2, but rotated 90 degrees right
 void rotate_right(char *buf1, char *buf2) {
     buf2[0] = buf1[6];
@@ -61,8 +64,14 @@ int is_valid_board(char *board[11]) {
     return 1;
 }
 
-inline int num_from_addr(char *addr) {
-    return addr[8] + 1;
+int num_from_addr(char *addr, char (*squares1)[11], char (*squares2)[11], char (*squares3)[11], char (*squares4)[11]) {
+    for(int i = 0; i < 9; i++) {
+        if(squares1[i] == addr || squares2[i] == addr || squares3[i] == addr || squares4[i] == addr)
+            return i+1;
+            //return 9;
+    }
+
+    return -1;
 }
 
 void print_board(char *board[9], char (*squares1)[11], char (*squares2)[11], char (*squares3)[11], char (*squares4)[11]) {
@@ -70,9 +79,9 @@ void print_board(char *board[9], char (*squares1)[11], char (*squares2)[11], cha
     for (int i = 0; i < 7; i += 3)
     {
         std::cout << "+--------+--------+--------+\n";
-        int num1 = num_from_addr(board[i]),
-            num2 = num_from_addr(board[i + 1]),
-            num3 = num_from_addr(board[i + 2]);
+        int num1 = num_from_addr(board[i], squares1, squares2, squares3, squares4),
+            num2 = num_from_addr(board[i + 1], squares1, squares2, squares3, squares4),
+            num3 = num_from_addr(board[i + 2], squares1, squares2, squares3, squares4);
 
         std::cout << "|" << num1 << "  " << board[i][0] << board[i][1] << "   |" << num2 << "  " << board[i + 1][0] << board[i + 1][1] << "   |" << num3 << "  " << board[i + 2][0] << board[i + 2][1] << "   |\n";
         std::cout << "|" << board[i][6] << board[i][7] << "    " << board[i][2] << board[i][3] << "|" << board[i + 1][6] << board[i + 1][7] << "    " << board[i + 1][2] << board[i + 1][3] << "|" << board[i + 2][6] << board[i + 2][7] << "    " << board[i + 2][2] << board[i + 2][3] << "|\n";
@@ -122,7 +131,8 @@ bool is_smaller(char *board[9], char *board2[9]) {
 void solve(char *board[9], std::vector<bool> used, const int index, char (*squares1)[11], char (*squares2)[11], char (*squares3)[11], char (*squares4)[11]) {
     // Place one down, check if valid, continue
     bool done = true;
-    int modInd = index % 9;
+    //int modInd = index % 9;
+    int modInd = arr[index % 9];
 
     for (int i = 0; i < used.size(); i++) {
         if (!used[i]) {
@@ -155,7 +165,9 @@ void solve(char *board[9], std::vector<bool> used, const int index, char (*squar
                         delete [] g_solutions.at(idx);
                         g_solutions.at(idx) = copy;
                     }
-                        
+                    else
+                        delete [] copy;
+
                     break;
                 } 
                 idx++;
@@ -174,10 +186,7 @@ void solve(char *board[9], std::vector<bool> used, const int index, char (*squar
                 if (idx == g_solutions.size())
                     g_solutions.push_back(copy);
             }
-            else
-                delete [] copy;
-        }
-        return;
+        }            
     }
 
     // Place unused squares and stop immediately if they don't fit
