@@ -48,7 +48,7 @@ int is_valid_board(char *board[11]) {
     char *center = board[4];
 
     // Compare center to adjacencies
-    if (!is_down(center, board[7]) || !is_up(center, board[1]) || !is_right(center, board[5]) || !is_left(center, board[3]))
+    if (!is_up(center, board[1]) || !is_down(center, board[7]) || !is_left(center, board[3]) || !is_right(center, board[5]))
         return 0;
 
     // Compare corners
