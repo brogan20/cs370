@@ -221,8 +221,18 @@ void solve(char *board[9], std::vector<bool> used, const int index,
     }
 }
 
-int main() {
-    FILE *file = fopen("arrows.txt", "r");
+int main(int argc, char **argv) {
+
+    if(argc == 1) {
+        std::cerr << "Usage: " << argv[0] << " <file>\n";
+        return 1;
+    }
+
+    FILE *file = fopen(argv[1], "r");
+    if(!file) {
+        std::cerr << "File not found\n";
+        return 1;
+    }
 
     // Rotations, lines, chars
     char squares[NUM_ROTATIONS][NUM_LINES + 1][11];
