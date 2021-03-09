@@ -48,7 +48,7 @@ int is_valid_board(char *board[11]) {
     char *center = board[4];
 
     // Compare center to adjacencies
-    if (!is_up(center, board[1]) || !is_down(center, board[7]) || !is_left(center, board[3]) || !is_right(center, board[5]))
+    if (!is_down(center, board[7]) || !is_up(center, board[1]) || !is_right(center, board[5]) || !is_left(center, board[3]))
         return 0;
 
     // Compare corners
@@ -227,11 +227,9 @@ int main()
     // Rotations, lines, chars
     char squares[4][lines + 1][11];
 
-    for (int i = 0; i < lines; i++)
-    {
+    for (int i = 0; i < lines; i++) {
         int count = 0;
-        for (int j = 0; j < 12; j++)
-        {
+        for (int j = 0; j < 12; j++) {
             int val = fgetc(file);
 
             if (val != ',')
