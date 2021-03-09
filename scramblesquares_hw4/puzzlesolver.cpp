@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 #define NUM_ROTATIONS 4
 #define NUM_LINES 9
@@ -129,8 +130,9 @@ bool is_smaller(char *board[9], char *board2[9]) {
     }
     // We shouldn't reach this statement
     // That would mean both boards are identical
-    return true;
+    return false;
 }
+
 void solve(char *board[9], std::vector<bool> used, const int index, char squares[NUM_ROTATIONS][NUM_LINES+1][11], std::vector<char **> &g_solutions) {
     char    (*squares1)[11] = squares[0],
             (*squares2)[11] = squares[1],
@@ -140,8 +142,7 @@ void solve(char *board[9], std::vector<bool> used, const int index, char squares
     // Place one down, check if valid, continue
     bool done = true;
 
-    //int modInd = arr[index % NUM_LINES];
-    int modInd = index % NUM_LINES;
+    int modInd = arr[index % NUM_LINES];
 
     for (int i = 0; i < used.size(); i++) {
         if (!used[i]) {
@@ -182,19 +183,8 @@ void solve(char *board[9], std::vector<bool> used, const int index, char squares
                 idx++;
             }
             // If the new board is actually new, insert it in order
-            if (fresh) {
-                idx = 0;
-                for (char ** sol: g_solutions) {
-                    if (is_smaller(copy, sol)) {
-                        g_solutions.insert(g_solutions.begin()+idx, copy);
-                        break;
-                    }
-                    idx++;
-                }
-                // If we haven't inserted the solution yet, put it at the end
-                if (idx == g_solutions.size())
-                    g_solutions.push_back(copy);
-            }
+            if (fresh)
+                g_solutions.push_back(copy);
         }            
     }
 
@@ -320,12 +310,23 @@ int main()
     solve(board, used, 0, squares, g_solutions);
 
     // Print out all the unique solutions
-    if (g_solutions.size() == 0)
+    if (g_solutions.size() == 0) {
         std::cout << "No solution found.\n";
+        return 0;
+    }
+        
     else if (g_solutions.size() == 1)
         std::cout << "1 unique solution found:\n";
     else
         std::cout << g_solutions.size() << " unique solutions found:\n";
+
+    struct compare {
+        inline bool operator() (char **sol1, char **sol2) {
+            return (is_smaller(sol1, sol2));
+        }
+    };
+
+    std::sort(g_solutions.begin(), g_solutions.end(), compare());
 
     for(size_t i = 0; i < g_solutions.size()-1; i++) {
         char ** sol = g_solutions[i];
