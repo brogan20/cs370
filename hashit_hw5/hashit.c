@@ -24,13 +24,12 @@ void clear_table(hash_set *set) {
 int hash(char *key) {
     int h = 0;
     int i = 1;
-    while (*key != '\0') {
+    while (*key != '\0' && *key != '\n') {
         h += (int)*key * i;
         ++i;
         ++key;
     }
 
-    printf("HASH: %d\n", (19 * h) % TABLE_SIZE);
     return (19 * h) % TABLE_SIZE;
 }
 
