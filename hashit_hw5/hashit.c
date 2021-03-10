@@ -30,6 +30,7 @@ int hash(char *key) {
         ++key;
     }
 
+    printf("HASH: %d\n", (19 * h) % TABLE_SIZE);
     return (19 * h) % TABLE_SIZE;
 }
 
@@ -44,6 +45,9 @@ int insert_key(hash_set *set, char *key) {
         set->num_keys += 1;
         return 1;
     }
+    if (strcmp(key, set->keys[h]) == 0)
+        return 0;
+
     int pos = 0;
     for (int j = 1; j < 20; j++) {
         pos = (h + j * j + 23 * j) % 101;
@@ -53,6 +57,8 @@ int insert_key(hash_set *set, char *key) {
             set->num_keys += 1;
             return 1;
         }
+        if (strcmp(key, set->keys[h]) == 0)
+            return 0;
     }
     return 0;
 }
