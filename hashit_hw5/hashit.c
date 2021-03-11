@@ -110,7 +110,7 @@ void display_keys(hash_set *set) {
     printf("%d\n", set->num_keys);
     for (int i = 0; i < TABLE_SIZE; ++i)
         if (set->keys[i] != NULL)
-            printf("%d:%s\n", i, set->keys[i]);
+            printf("%d:%s", i, set->keys[i]);
 }
 
 int main(){
