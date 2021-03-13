@@ -1,3 +1,6 @@
+// Names: Brogan Clements, Dominick DiMaggio, Ishaan Patel
+// Pledge: I pledge my honor that I have abided by the Stevens Honor System.
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,8 +22,7 @@ void clear_table(hash_set *set) {
     set->num_keys = 0;
 }
 
-// hash is 19 * (ASCII(a1)*1 + ... + ASCII(an)*n)
-// what in the actual hell is this hash
+// hash is (19 * (ASCII(a1)*1 + ... + ASCII(an)*n)) mod 101 
 int hash(char *key) {
     int h = 0;
     int i = 1;
@@ -55,11 +57,12 @@ int exists(hash_set *set, char *key) {
 // assume after 20 entries that you cant insert
 // (hash(key) + j^2 + 23^j) % 101 for j=1,...,19 for collisions
 int insert_key(hash_set *set, char *key) {
-    if(exists(set, key))
+    if(exists(set, key)) //if the key already exists
         return 0;
 
     //printf("Inserting %s", key);
     int h = hash(key);
+    // if the location is empty, allocate space and insert
     if (set->keys[h] == NULL) {
         set->keys[h] = (char *)malloc((strlen(key) + 1) * sizeof(char));
         strcpy(set->keys[h], key);
@@ -67,6 +70,8 @@ int insert_key(hash_set *set, char *key) {
         return 1;
     }
 
+    // we need to traverse the collision formula and check
+    // if the locations are empty
     int pos = 0;
     for (int j = 1; j < 20; j++) {
         pos = (h + j * j + 23 * j) % 101;
@@ -80,6 +85,8 @@ int insert_key(hash_set *set, char *key) {
     return 0;
 }
 
+// it deletes stuff
+// works pretty similarly to insert_keys
 int delete_key(hash_set *set, char *key) {
     int h = hash(key);
     if (set->keys[h] != NULL && strcmp(key, set->keys[h]) == 0) { // somethings in there
@@ -121,7 +128,7 @@ int main(){
 	while(buf[0] == '\n')
         fgets(buf, 20, stdin);
 
-	int t = atoi(buf);
+	int t = atoi(buf); //number of test cases
 	for(int testcase=0; testcase<t; testcase++){
 		fgets(buf, 20, stdin);
 		while(buf[0] == '\n')
@@ -154,35 +161,3 @@ int main(){
 	}
 	return 0;
 }
-
-/*
-⠄⠄⠄⠄⠄⠄⠄⠄⠄⢀⣤⣶⣿⣿⣿⣿⣿⣿⣿⣶⣄⠄⠄⠄⠄⠄⠄⠄⠄⠄
-⠄⠄⠄⠄⠄⠄⠄⢀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠄⠄⠄⠄⠄⠄⠄⠄
-⠄⠄⠄⠄⠄⠄⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠄⠄⠄⠄⠄⠄⠄
-⠄⠄⠄⠄⠄⣴⡿⠛⠉⠁⠄⠄⠄⠄⠈⢻⣿⣿⣿⣿⣿⣿⣿⠄⠄⠄⠄⠄⠄⠄
-⠄⠄⠄⠄⢸⣿⡅⠄⠄⠄⠄⠄⠄⠄⣠⣾⣿⣿⣿⣿⣿⣿⣿⣷⣶⣶⣦⠄⠄⠄
-⠄⠄⠄⠄⠸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣇⠄⠄
-⠄⠄⠄⠄⠄⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄⠄
-⠄⠄⠄⠄⠄⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄⠄
-⠄⠄⠄⠄⠄⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄⠄
-⠄⠄⠄⠄⠄⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄⠄
-⠄⠄⠄⠄⠄⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄⠄
-⠄⠄⠄⠄⠄⠄⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠛⠛⠛⠃⠄⠄
-⠄⠄⠄⠄⠄⣼⠄⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄⠄⠄⣿⠄⠄⠄⠄⠄⠄
-⠄⠄⠄⠄⢰⣿⣿⠄⠄⠄⠄amogus⠄⠄⠄⣿⣿⣿⣿⡇⠄⠄⠄⠄⠄
-⠄⠄⠄⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠄⠄⠄⠄⠄
-⠄⠄⠄⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡆⠄⠄⠄⠄
-⠄⠄⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠄⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠇⠄⠄⠄⠄
-⠄⠄⢸⣿⣿⣿⣿⣿⣿⣿⡿⠟⠁⠄⠄⠄⠻⣿⣿⣿⣿⣿⣿⣿⡿⠄⠄⠄⠄⠄
-⠄⠄⢸⣿⣿⣿⣿⣿⡿⠋⠄⠄⠄⠄⠄⠄⠄⠙⣿⣿⣿⣿⣿⣿⡇⠄⠄⠄⠄⠄
-⠄⠄⢸⣿⣿⣿⣿⣿⣧⡀⠄⠄⠄⠄⠄⠄⠄⢀⣾⣿⣿⣿⣿⣿⡇⠄⠄⠄⠄⠄
-⠄⠄⢸⣿⣿⣿⣿⣿⣿⣿⡄⠄⠄⠄⠄⠄⠄⣿⣿⣿⣿⣿⣿⣿⣷⠄⠄⠄⠄⠄
-⠄⠄⠸⣿⣿⣿⣿⣿⣿⣿⣷⠄⠄⠄⠄⠄⢰⣿⣿⣿⣿⣿⣿⣿⣿⠄⠄⠄⠄⠄
-⠄⠄⠄⢿⣿⣿⣿⣿⣿⣿⡟⠄⠄⠄⠄⠄⠸⣿⣿⣿⣿⣿⣿⣿⠏⠄⠄⠄⠄⠄
-⠄⠄⠄⠈⢿⣿⣿⣿⣿⠏⠄⠄⠄⠄⠄⠄⠄⠙⣿⣿⣿⣿⣿⠏⠄⠄⠄⠄⠄⠄
-⠄⠄⠄⠄⠘⣿⣿⣿⣿⡇⠄⠄⠄⠄⠄⠄⠄⠄⣿⣿⣿⣿⡏⠄⠄⠄⠄⠄⠄⠄
-⠄⠄⠄⠄⠄⢸⣿⣿⣿⣧⠄⠄⠄⠄⠄⠄⠄⢀⣿⣿⣿⣿⡇⠄⠄⠄⠄⠄⠄⠄
-⠄⠄⠄⠄⠄⣸⣿⣿⣿⣿⣆⠄⠄⠄⠄⠄⢀⣾⣿⣿⣿⣿⣿⣄⠄⠄⠄⠄⠄⠄
-⠄⣀⣀⣤⣾⣿⣿⣿⣿⡿⠟⠄⠄⠄⠄⠄⠸⣿⣿⣿⣿⣿⣿⣿⣷⣄⣀⠄⠄⠄
-⠸⠿⠿⠿⠿⠿⠿⠟⠁⠄⠄⠄⠄⠄⠄⠄⠄⠄⠉⠉⠛⠿⢿⡿⠿⠿⠿⠃⠄⠄
-*/
