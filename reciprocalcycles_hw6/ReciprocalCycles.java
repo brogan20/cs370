@@ -28,8 +28,7 @@ public class ReciprocalCycles {
             buf += numerator / denominator;
         }
         if (lastVal == 0) {
-            System.out.printf("1/%d = ", denominator);
-            System.out.println(1d / denominator);
+            System.out.printf("1/%d = %s\n", denominator, buf);
         } else {
             int len = tracker.size() - tracker.indexOf(lastVal);
 
