@@ -1,5 +1,4 @@
 import java.util.LinkedList;
-import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
@@ -8,6 +7,7 @@ public class ReciprocalCycles {
     public static void main(String[] args) {
         // check denominator is valid integer
         int denominator = -1;
+        String buf = "0.";
         
         try {
             denominator = Integer.parseInt(args[0]);
@@ -25,24 +25,21 @@ public class ReciprocalCycles {
             tracker.addLast(lastVal);
             numerator = lastVal * 10;
             lastVal = numerator % denominator;
+            buf += numerator / denominator;
         }
         if (lastVal == 0) {
             System.out.printf("1/%d = ", denominator);
             System.out.println(1d / denominator);
         } else {
             int len = tracker.size() - tracker.indexOf(lastVal);
-            BigDecimal res = new BigDecimal(1L);
-            res.setScale(tracker.size() + 1);
-            BigDecimal tmp = res.divide(new BigDecimal(denominator), tracker.size(), RoundingMode.FLOOR);
-            String decimal = tmp.toString();
 
             StringBuilder output = new StringBuilder();
             output.append("1/");
             output.append(args[0]);
             output.append(" = ");
-            output.append(decimal.substring(0, 2 + tracker.indexOf(lastVal)));
+            output.append(buf.substring(0, 2 + tracker.indexOf(lastVal)));
             output.append('(');
-            output.append(decimal.substring(2 + tracker.indexOf(lastVal), 2 + tracker.size()));
+            output.append(buf.substring(2 + tracker.indexOf(lastVal), 2 + tracker.size()));
             output.append("), cycle length ");
             output.append(Integer.toString(len));
             System.out.println(output.toString());
