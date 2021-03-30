@@ -1,0 +1,4 @@
+1
+abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghij
+zyxwutsrqponmlkjuhgfedcba
+# Quickly calculate about 1000 sequences

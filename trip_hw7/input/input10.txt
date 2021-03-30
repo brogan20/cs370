@@ -1,0 +1,3 @@
+0
+
+Spoj seems to imply no lower bound for T

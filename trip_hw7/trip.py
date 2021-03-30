@@ -58,6 +58,9 @@ def lcs_dp_rec(s1, s2):
 # gets the amount of test cases
 iters = int(input())
 
+if iters < 1:
+    exit()
+
 # calls the lcs method for each test case
 for _ in range(iters-1):
     lcs_dp_rec(input(), input())
