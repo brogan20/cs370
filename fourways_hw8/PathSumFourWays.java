@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -7,8 +8,20 @@ import java.util.*;
 public class PathSumFourWays {
 
     public static void main(String[] args) throws Exception{
+        if(args.length < 1) {
+            System.out.println("Usage: java PathSumFourWays <input file>");
+            return;
+        }
         File file = new File(args[0]);
-        BufferedReader br = new BufferedReader(new FileReader(file));
+        BufferedReader br;
+
+        try {
+            br = new BufferedReader(new FileReader(file));
+        } catch (Exception e) {
+            System.err.println("Error: File '" + args[0] + "' not found.");
+            return;
+        }
+        
         String line;
         ArrayList<ArrayList<Integer>> arr = new ArrayList<>();
 
@@ -30,7 +43,7 @@ public class PathSumFourWays {
         //issa a queue
         PriorityQueue<Node> q = new PriorityQueue<>();
 
-        // fill in the graph with nodes and also begin dijkstras thing
+        // fill in the graph with nodes and also begin Dijkstra's thing
         for (int i = 0; i <= i_max; i++){
             for (int j = 0; j <= j_max; j++) {
                 graph[i][j] = new Node(arr.get(i).get(j), i, j);
@@ -42,10 +55,48 @@ public class PathSumFourWays {
         while (!q.isEmpty()) {
             //grabs and removes the head of the queue
             Node u = q.poll();
-            System.out.println(u.weight + " " + u.dist);
+            //System.out.println("" + graph[0][0].weight + " to " + u.weight + " is " + u.dist);
 
             if (u.weight == graph[i_max][j_max].weight) {
+                System.out.println("Min sum: " + graph[i_max][j_max].dist);
+
                 // Backtrack
+                List<Integer> path = new ArrayList<>();
+                path.add(u.weight);
+
+                int i = i_max;
+                int j = j_max;
+
+                while(i > 0 || j > 0) {
+                    List<Node> neighbors = new ArrayList<>();
+                    if(i > 0)
+                        neighbors.add(graph[i-1][j]);
+                    if(j > 0)
+                        neighbors.add(graph[i][j-1]);
+                    if(i < i_max)
+                        neighbors.add(graph[i+1][j]);
+                    if(j < j_max)
+                        neighbors.add(graph[i][j+1]);
+
+                    int curDist = u.dist - u.weight;
+
+                    for(Node n : neighbors) {
+                        if(n.dist == curDist) {
+                            path.add(n.weight);
+                            i = n.i;
+                            j = n.j;
+
+                            u = n;
+                        }
+                    }
+                }
+
+                System.out.print("Values:  [");
+                for(int iter = path.size()-1; iter > 0; iter--) {
+                    System.out.print(path.get(iter) + ", ");
+                }
+                System.out.println(path.get(0) + "]");
+
                 break;
             } else {
                 if (u.i != 0)  { // Get node above
@@ -82,7 +133,7 @@ public class PathSumFourWays {
                 }
             }   
         }
-        System.out.println(graph[i_max][j_max].dist);
+        //System.out.println(graph[i_max][j_max].dist);
     }
 }
 
@@ -102,7 +153,6 @@ class Node implements Comparable<Node>{
         this.j = j;
     }
 
-    
     public int compare(Node n1, Node n2) {
         if (n1.dist == n2.dist) return 0;
         //returns 1 if greater
@@ -116,4 +166,7 @@ class Node implements Comparable<Node>{
         return -1;
     }
 
+    public void printString() {
+        System.out.println("Weight: " + weight + ", Dist: " + dist + ", i: " + i + ", j: " + j);
+    }
 }
