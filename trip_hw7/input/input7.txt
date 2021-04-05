@@ -1,0 +1,5 @@
+1
+a
+a
+
+# Making sure it works with as little as 1 char
