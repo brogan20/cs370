@@ -1,3 +1,6 @@
+// Names: Brogan Clements, Dominick DiMaggio, Ishaan Patel
+// Pledge: I pledge my honor that I have abided by the Stevens Honor System.
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.BufferedReader;
@@ -5,10 +8,13 @@ import java.io.FileReader;
 import java.util.*;
 
 public class PathSumFourWays {
+
+    // Allows us to think about the problem as a series of interconnected nodes with
+    // varied path lengths for Dijkstra's
     private static class Node implements Comparable<Node>{
         
         int weight;
-        
+        // To be modified by outside code
         int dist = Integer.MAX_VALUE;
     
         int i;
@@ -20,20 +26,11 @@ public class PathSumFourWays {
             this.j = j;
         }
     
-        
-        public int compare(Node n1, Node n2) {
-            if (n1.dist == n2.dist) return 0;
-            //returns 1 if greater
-            if (n1.dist > n2.dist) return 1;
-            return -1;
-        } 
-    
         public int compareTo(Node comp) {
             if (this.dist == comp.dist) return 0;
             if (this.dist > comp.dist) return 1;
             return -1;
         }
-    
     }
 
     // Recursive backtracking to determine the path. Allows for rewinding in case two adjacencies match weights
@@ -85,6 +82,7 @@ public class PathSumFourWays {
                 return false;
         }
 
+        // Prints backwards
         System.out.print("Values:  [");
         for(int iter = path.size()-1; iter > 0; iter--) {
             System.out.print(path.get(iter) + ", ");
@@ -94,7 +92,8 @@ public class PathSumFourWays {
         return true;
     }
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
+        // Input checking
         if(args.length < 1) {
             System.out.println("Usage: java PathSumFourWays <input file>");
             return;
@@ -112,7 +111,7 @@ public class PathSumFourWays {
         String line;
         ArrayList<ArrayList<Integer>> arr = new ArrayList<>();
 
-        // fill in the array list with numbers
+        // Fill in the array list with numbers
         while ((line = br.readLine()) != null) {
             String[] strVals = line.split(",");
             ArrayList<Integer> vals = new ArrayList<>();
@@ -128,7 +127,7 @@ public class PathSumFourWays {
 
         PriorityQueue<Node> q = new PriorityQueue<>();
 
-        // fill in the graph with nodes and also begin Dijkstra's thing
+        // Fill in the graph with nodes and also begin Dijkstra's algorithm
         for (int i = 0; i <= i_max; i++){
             for (int j = 0; j <= j_max; j++) {
                 graph[i][j] = new Node(arr.get(i).get(j), i, j);
@@ -139,15 +138,12 @@ public class PathSumFourWays {
         
         while (!q.isEmpty()) {
             Node u = q.poll();
-            //System.out.println("" + graph[0][0].weight + " to " + u.weight + " is " + u.dist);
 
             if (u == graph[i_max][j_max]) {
                 System.out.println("Min sum: " + graph[i_max][j_max].dist);
 
+                // Find path that got us this length and print
                 backTrack(u, graph);
-                // Backtrack
-
-
                 break;
             } else {
                 if (u.i != 0)  { // Up
@@ -184,7 +180,7 @@ public class PathSumFourWays {
                 }
             }   
         }
-        //System.out.println(graph[i_max][j_max].dist);
+        br.close();
     }
 }
 
