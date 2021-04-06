@@ -35,6 +35,65 @@ public class PathSumFourWays {
         }
     
     }
+
+    // Recursive backtracking to determine the path. Allows for rewinding in case two adjacencies match weights
+    private static void backTrack(Node u, Node[][] graph) {
+        backTrack_helper(u, graph, graph.length-1, graph[0].length-1, new ArrayList<Integer>());
+    }
+
+    private static boolean backTrack_helper(Node u, Node[][] graph, int i, int j, List<Integer> path) {
+        int i_max = graph.length-1;
+        int j_max = graph[0].length-1;
+
+        path.add(u.weight);
+
+        if(i > 0 || j > 0) {
+            List<Node> neighbors = new ArrayList<>();
+
+            // Check all adjacencies
+            if(i > 0)
+                neighbors.add(graph[i-1][j]);
+            if(j > 0)
+                neighbors.add(graph[i][j-1]);
+            if(i < i_max)
+                neighbors.add(graph[i+1][j]);
+            if(j < j_max)
+                neighbors.add(graph[i][j+1]);
+
+            if(neighbors.size() == 0) {
+                return false;
+            }
+
+            int curDist = u.dist - u.weight;
+            boolean found = false; // For rewinding
+
+            for(Node n : neighbors) {
+                if(n.dist == curDist) {
+                    found = true;
+
+                    if(backTrack_helper(n, graph, n.i, n.j, path))
+                        return true;
+                    else {
+                        path.remove(path.size()-1);
+                        found = false;
+                    }
+                }
+            }
+
+            // We took a wrong path
+            if(!found)
+                return false;
+        }
+
+        System.out.print("Values:  [");
+        for(int iter = path.size()-1; iter > 0; iter--) {
+            System.out.print(path.get(iter) + ", ");
+        }
+        System.out.println(path.get(0) + "]");
+
+        return true;
+    }
+
     public static void main(String[] args) throws Exception{
         if(args.length < 1) {
             System.out.println("Usage: java PathSumFourWays <input file>");
@@ -83,45 +142,11 @@ public class PathSumFourWays {
             //System.out.println("" + graph[0][0].weight + " to " + u.weight + " is " + u.dist);
 
             if (u == graph[i_max][j_max]) {
-                // Backtrack
                 System.out.println("Min sum: " + graph[i_max][j_max].dist);
 
+                backTrack(u, graph);
                 // Backtrack
-                List<Integer> path = new ArrayList<>();
-                path.add(u.weight);
 
-                int i = i_max;
-                int j = j_max;
-
-                while(i > 0 || j > 0) {
-                    List<Node> neighbors = new ArrayList<>();
-                    if(i > 0)
-                        neighbors.add(graph[i-1][j]);
-                    if(j > 0)
-                        neighbors.add(graph[i][j-1]);
-                    if(i < i_max)
-                        neighbors.add(graph[i+1][j]);
-                    if(j < j_max)
-                        neighbors.add(graph[i][j+1]);
-
-                    int curDist = u.dist - u.weight;
-
-                    for(Node n : neighbors) {
-                        if(n.dist == curDist) {
-                            path.add(n.weight);
-                            i = n.i;
-                            j = n.j;
-
-                            u = n;
-                        }
-                    }
-                }
-
-                System.out.print("Values:  [");
-                for(int iter = path.size()-1; iter > 0; iter--) {
-                    System.out.print(path.get(iter) + ", ");
-                }
-                System.out.println(path.get(0) + "]");
 
                 break;
             } else {
