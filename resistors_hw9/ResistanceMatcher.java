@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.concurrent.Semaphore;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,6 +18,7 @@ public class ResistanceMatcher {
   private static double[] bestFit;
   private static double closest = Double.MAX_VALUE;
   private static int bestI, bestK;
+  private static Semaphore closestSem = new Semaphore(1);
 
   private static ArrayList<Integer> bestIs, bestKs;
 
@@ -26,28 +28,39 @@ public class ResistanceMatcher {
     return Math.abs(res1-res2) < 0.000000000000001;
   }
 
-  // TODO: Binary search
   static double findBest(Double[] choices, double sum) {
-    //System.out.println("Current: " + sum + ", " + 1/sum);
-    //double sum = 1 / resistance;
     double bestDist = Math.abs(1 / (sum + 1/choices[0]) - target);
     double bestVal = choices[0];
 
-    for(int i = 1; i < choices.length; i++) {
-      double res = 1 / (sum + 1/choices[i]);
+    int l = 0, r = choices.length - 1;
+    while (l <= r) {
+      int m = l + (r - l) / 2;
+
+      double res = 1 / (sum + 1/choices[m]);
       double dist = Math.abs(res - target);
       if(dist < bestDist) {
-        //System.out.println("Best is now " + dist + ", no longer " + bestDist);
         bestDist = dist;
-        //System.out.println("Best is now " + choices[i] + ", no longer " + bestVal);
-        bestVal = choices[i];
+        bestVal = choices[m];
       }
+
+      // Check if x is present at mid
+      if (res == target)
+        return m;
+
+      // If x greater, ignore left half
+      if (res < target)
+        l = m + 1;
+
+      // If x is smaller, ignore right half
+      else
+        r = m - 1;
     }
 
     //System.out.println("Best choice to reach " + target + ": " + bestVal + "\n");
     return bestVal;
   }
 
+  /*
   static double findBest(Double[] choices, double sum, double ignore) {
     //System.out.println("Current: " + sum + ", " + 1/sum);
     //double sum = 1 / resistance;
@@ -68,33 +81,97 @@ public class ResistanceMatcher {
     //System.out.println("Best choice to reach " + target + ": " + bestVal + "\n");
     return bestVal;
   }
+  */
+
+  public static void calculate(Double[] arr, double[][] resistors, double[][] resistances, double[][] sums, int start, int end) {
+    for(int k = 2; k <= maxInd; k++) {
+      for(int i = start; i <= end; i++) {
+        double curRes = resistances[k-1][i];
+
+        // Better than previously found
+        if(inRange(curRes) && Math.abs(curRes-target) < Math.abs(closest-target)) {
+          try {
+            closestSem.acquire();
+          } catch (InterruptedException e) {
+            System.exit(1);
+          }
+          
+          // Check again after entering CS to avoid making a false adjustment
+          if(inRange(curRes) && Math.abs(curRes-target) < Math.abs(closest-target)) {
+            if(closeEnough(closest, curRes)) {
+              bestIs.add(bestI);
+              bestKs.add(bestK);
+            }
+            else {
+              bestIs.clear();
+              bestKs.clear();
+            }
+  
+            closest = curRes;
+  
+            bestI = i;
+            bestK = k-1;
+          }
+          closestSem.release();
+        }
+      }
+
+      for(int i = start; i <= end; i++) {
+        double sum = 0.0;
+        double oldSum = 0.0;
+
+        // Top to current
+        oldSum = sums[k-1][i];
+
+        double chosen = findBest(arr, oldSum);
+        if(resistors[k][i] != 0.0)
+          chosen = resistors[k][i];
+
+        sum = oldSum + (1 / chosen);
+
+        sums[k][i] = sum;
+        double newRes = 1 / sum;
+
+        double self = newRes;
+        
+        resistors[k][i] = chosen;
+        resistances[k][i] = self;
+      }
+    }
+  }
+
+  // TODO: Try increasing when binary search is implemented
+  // TODO: Use combinations instead of permutations
+  static final int BOUND_1 = 51;
+  static final int BOUND_2 = 150;
+  static final int BOUND_3 = 400;
 
   static double[][] solve(Set<Double> s) {
     //System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     Double[] arr = new Double[s.size()];
     System.arraycopy(s.toArray(), 0, arr, 0, s.size());
-    Arrays.sort(arr, Collections.reverseOrder());
+    //Arrays.sort(arr, Collections.reverseOrder());
+    Arrays.sort(arr);
     int size = s.size();
 
-    //System.out.print("0.000, ");
-    //DecimalFormat fmt = new DecimalFormat("0.000");
-
-    /*
-    for(int i = 0; i < arr.length; i++) {
-      if(i < arr.length-1)
-        System.out.print(fmt.format(arr[i]) + ", ");
-      else
-        System.out.println(fmt.format(arr[i]));
-    }
-    */
-    //System.out.println();
-    //System.out.println("MAXIND: " + maxInd);
     int maxSize;
 
     // TODO: Tighter bound
-    if(size > 500) {
-      System.out.println("Too fat");
-      maxSize = (int)Math.pow(size, 1);
+    if(size > BOUND_3) {
+      //System.out.println("Too fat");
+      //maxSize = (int)Math.pow(size, 2);
+      maxSize = size;
+    }
+    else if(size > BOUND_2) {
+      //System.out.println("Too fat");
+      //System.out.println("Too bat");
+      maxSize = (int)Math.pow(size, 2);
+      //maxSize = size;
+    }
+    else if(size <= BOUND_2 && size > BOUND_1) {
+      //System.out.println("Too dat");
+      //System.out.println("Too fat");
+      maxSize = (int)Math.pow(size, 2);
       //maxSize = size;
     }
     else if(maxInd > 4)
@@ -107,7 +184,6 @@ public class ResistanceMatcher {
     double[][] sums = new double[maxInd+1][maxSize+1];
 
     for(int i = 1; i <= size; i++) {
-      // This checks against previous, but what about the others?
       //double up = Double.MAX_VALUE;
       double self = arr[i-1];
       //double left = Double.MAX_VALUE;
@@ -115,18 +191,19 @@ public class ResistanceMatcher {
       resistances[1][i] = self;
       sums[1][i] = 1 / self;
 
+      /*
       int tmp = i + size;
       //int tmp2 = i + size;
 
-      resistors[2][i] = arr[0];
+      //resistors[2][i] = arr[0];
 
+      
       int count = 1;
       while(tmp <= maxSize) {
         resistors[1][tmp] = self;
         resistances[1][tmp] = self;
         sums[1][tmp] = 1 / self;
 
-        /*
         resistors[2][tmp] = arr[count % arr.length];
 
         int count2 = 0;
@@ -136,11 +213,12 @@ public class ResistanceMatcher {
 
           count2++;
         }
-        */
+        
 
         tmp += size;
         //count++;
       }
+      */
       //resistors[1][i+size] = self;
       //resistances[1][i+size] = self;
       //sums[1][i+size] = 1 / self;
@@ -152,7 +230,7 @@ public class ResistanceMatcher {
 
     int count = 0;
 
-    if(maxInd > 3 && size <= 500)
+    if(maxInd > 3 && size <= BOUND_1)
     for(int i = 0; i < size; i++) {
       for(int j = 0; j < size; j++) {
         for(int k = 0; k < size; k++) {
@@ -171,7 +249,7 @@ public class ResistanceMatcher {
         }
       }
     }
-    else if(maxInd > 2 && size <= 500)
+    else if(maxInd > 2 && size <= BOUND_2)
     for(int i = 0; i < size; i++) {
       for(int j = 0; j < size; j++) {
         for(int k = 0; k < size; k++) {
@@ -192,83 +270,48 @@ public class ResistanceMatcher {
         }
       }
     }
-    else if(maxInd > 1 && size <= 500)
+    else if(maxInd > 1 && size <= BOUND_3)
     for(int i = 1; i <= maxSize; i+=size) {
-      //System.out.println("Count: " + count);
-      for(int j = 0; j < maxInd && i+j < resistors[2].length; j++) {
-        resistors[2][i+j] = arr[count % size];
-      }
-      count++;
-    }
-    /*
-    for(int i = 0; i < size; i++) {
-      for(int j = 0; j < size; j++) {
-        resistors[1][count] = arr[i];
-        resistances[1][count] = arr[i];
-        sums[1][count] = 1 / arr[i];
-
-        resistors[2][count] = arr[j];
-
-        count++;
-      }
-    }
-    */
-
-    /*
-    for(int i = 1; i <= maxSize; i+=size) {
-      //System.out.println("Count: " + count);
       for(int j = 0; j < maxInd && i+j < resistors[2].length; j++) {
         resistors[2][i+j] = arr[count % size];
       }
       count++;
     }
 
-    if(maxInd > 2) {
-      count = 0;
-      
-      for(int i = 1; i <= maxSize; i+=size*size) {
-        //System.out.println("Count: " + count);
-        for(int j = 0; j < maxInd*maxInd && i+j < resistors[3].length; j++) {
-          resistors[3][i+j] = arr[count % size];
-        }
-        count++;
-      }
-    }
-    */
-
-    int ogSize = size;
     size = maxSize;
+    final int sz = size;
 
     //print(resistors);
 
     bestI = Integer.MAX_VALUE;
     bestK = Integer.MAX_VALUE;
 
-    for(int k = 2; k <= maxInd; k++) {
+    //calculate(arr, resistors, resistances, sums, 1, size);
 
-      // TODO: Get best fit from previous iteration
+    Thread t = (new Thread() {
+      public void run() {
+        calculate(arr, resistors, resistances, sums, sz/2, sz);
+      }
+    });
+
+    t.start();
+
+    calculate(arr, resistors, resistances, sums, 1, sz/2-1);
+
+     try {
+      t.join();
+     } catch (InterruptedException e) {
+       System.exit(1);
+     }
+     
+    /*
+    for(int k = 2; k <= maxInd; k++) {
       for(int i = 1; i <= size; i++) {
         double curRes = resistances[k-1][i];
 
         // Better than previously found
         if(inRange(curRes) && Math.abs(curRes-target) < Math.abs(closest-target)) {
-          /*
-          for(int p = 1; p < k; p++) {
-            if(resistors[p][i] > resistors[p][bestI]) {
-              smaller = false;
-              break;
-            }
-            else if(resistors[p][i] < resistors[p][bestI]) {
-              smaller = true;
-              break;
-            }
-          }
-          */
-          //if(Math.abs(curRes-target) < Math.abs(closest-target) && curRes != 0) {
-          //System.out.println("In range: " + curRes);
-
           if(closeEnough(closest, curRes)) {
-            //System.out.println("Close enough: " + closest + ", " + curRes);
             bestIs.add(bestI);
             bestKs.add(bestK);
           }
@@ -281,27 +324,8 @@ public class ResistanceMatcher {
 
           bestI = i;
           bestK = k-1;
-
-          /*
-          ArrayList<Double> sorted = new ArrayList<Double>();
-          for(int b = 1; b <= bestK; b++) {
-            //System.out.print(resistors[i][bestI] + ", ");
-            sorted.add(resistors[b][bestI]);
-          }
-          Collections.sort(sorted);
-          System.out.print(sorted);
-
-          System.out.println(": " + closest);
-          */
         }
-
-        //else {
-          //System.out.println("Not: " + curRes);
-        //}
       }
-
-      //if(closest < Double.MAX_VALUE)
-      //  break;
 
       for(int i = 1; i <= size; i++) {
         double sum = 0.0;
@@ -313,36 +337,26 @@ public class ResistanceMatcher {
         double chosen = findBest(arr, oldSum);
         if(resistors[k][i] != 0.0)
           chosen = resistors[k][i];
-          //else
-          //  chosen = findBest(arr, oldSum, chosen);
-          //chosen = 2.0;
 
         sum = oldSum + (1 / chosen);
 
         sums[k][i] = sum;
         double newRes = 1 / sum;
-        //double oldRes = 1 / oldSum;
 
         double self = newRes;
         
         resistors[k][i] = chosen;
-        //recalcRes(resistors, resistances);
         resistances[k][i] = self;
       }
-
-      //print(resistances);
     }
+    */
 
     for(int i = 1; i <= size; i++) {
       double curRes = resistances[maxInd][i];
 
       // Better than previously found
       if(inRange(curRes) && Math.abs(curRes-target) < Math.abs(closest-target)) {
-      //if(Math.abs(curRes-target) < Math.abs(closest-target) && curRes != 0) {
-        //System.out.println("In range: " + curRes);
-
         if(closeEnough(closest, curRes)) {
-          //System.out.println("Close enough: " + closest + ", " + curRes);
           bestIs.add(bestI);
           bestKs.add(bestK);
         }
@@ -355,32 +369,13 @@ public class ResistanceMatcher {
 
         bestI = i;
         bestK = maxInd;
-
-        /*
-        ArrayList<Double> sorted = new ArrayList<Double>();
-        for(int b = 1; b <= bestK; b++) {
-          //System.out.print(resistors[i][bestI] + ", ");
-          sorted.add(resistors[b][bestI]);
-        }
-        Collections.sort(sorted);
-        System.out.print(sorted);
-
-        System.out.println(": " + closest);
-        */
       }
-      //else {
-        //System.out.println("Not: " + curRes);
-      //}
     }
 
-    //print(resistances);
-    //print(resistors);
-
-    // First row is now initialized
-    //print(resistors);
     return resistors;
   }
 
+  // Debug method
   static void print(double[][] arr) {
     System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     DecimalFormat fmt = new DecimalFormat("0.000");
@@ -542,16 +537,10 @@ public class ResistanceMatcher {
       //System.out.println("Best: " + bestCandidate);
     }
 
-      
-
-    
-
     if(closest != Double.MAX_VALUE) {
-      String tmpTarget = new DecimalFormat("#.0000000").format(target);
-      if(tmpTarget.length() < args[0].length())
-        System.out.print("Target resistance of " + tmpTarget + " ohms is possible with ");
-      else
-      System.out.print("Target resistance of " + args[0] + " ohms is possible with ");
+      if(args[0].equals("1"))
+        System.out.print("Target resistance of " + args[0] + " ohm is possible with ");
+      else System.out.print("Target resistance of " + args[0] + " ohms is possible with ");
       //printArray(bestFit);
       if(bestCandidate == null) {
         ArrayList<Double> sorted = new ArrayList<Double>();
@@ -574,7 +563,9 @@ public class ResistanceMatcher {
       System.out.println("Percent error: " + new DecimalFormat("0.00").format(Math.abs(target - closest) / target * 100) + " %");
     }
     else {
-      System.out.print("Target resistance of " + args[0] + " ohms is not possible.");
+      if(args[0].equals("1"))
+        System.out.println("Target resistance of " + args[0] + " ohm is not possible.");
+      else System.out.println("Target resistance of " + args[0] + " ohms is not possible.");
     }
 
     br.close();
