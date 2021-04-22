@@ -52,7 +52,10 @@ public class RunningMedian {
             } else {
                 median = maxHeap.peek();
             }
-            System.out.println(median);
+            //System.out.println(median);
+
+            // Limit to 1 because it will be .0 or .5
+            System.out.printf("%.1f\n", median);
         }
     }
 }
