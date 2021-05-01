@@ -1,31 +1,63 @@
-def isSubsetSum(set, n, sum):
+import sys
+
+paths = []
+target = None
+
+def Remove(lst):
+     return ([list(i) for i in {*[tuple(sorted(i)) for i in lst]}])  
+
+def vimwar(lst, n, sum, path):
+    global paths
+    global target
+ 
     # Base Cases
-    if (sum == 0):
-        return True
     if (n == 0):
+        if sum == target:
+          paths += [path]
+        #print("Domp")
         return False
+    if (sum == target):
+        #print("Womp")
+        paths += [path]
+        #vimwar(lst, n-1, sum, path)
+        #return False
+
  
     # If last element is greater than
     # sum, then ignore it
-    if (set[n - 1] > sum):
-        return isSubsetSum(set, n - 1, sum)
+    #if (lst[n - 1] > sum):
+    #    return vimwar(lst, n - 1, sum, path)
  
     # else, check if sum can be obtained
     # by any of the following
-    # (a) including the last element
-    # (b) excluding the last element
-    return isSubsetSum(
-        set, n-1, sum) or isSubsetSum(
-        set, n-1, sum-set[n-1])
- 
- 
-# Driver code
-set = [3, 34, 4, 12, 5, 2]
-sum = 9
-n = len(set)
-if (isSubsetSum(set, n, sum) == True):
-    print("Found a subset with given sum")
-else:
-    print("No subset with given sum")
+    # (a) excluding the last element
+    # (b) including the last element
 
-# get the set of all combinations  that give us every skill
+    vimwar(lst, n-1, sum, path)
+    vimwar(lst, n-1, sum | lst[n-1], path + [lst[n-1]])
+
+
+sys.setrecursionlimit(9999)
+# Driver code
+tmp = input().split()
+lines = int(tmp[0])
+numskills = int(tmp[1])
+nums = []
+
+for _ in range(lines):
+    nums += [int(input(), 2)]
+target = int(input(), 2)
+
+#print(nums)
+
+lst = [3, 34, 4, 12, 5, 2]
+sum = 9
+n = len(lst)
+
+#isSublstSum(lst, n, sum, [])
+#print(target)
+vimwar(nums, len(nums), 0, [])
+
+paths = Remove(paths)
+#print(paths)
+print(len(paths))
