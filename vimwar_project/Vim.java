@@ -37,32 +37,33 @@ public class Vim {
         }
         
         
-        for (int i = 0; i < MAX_M; i++) {
-            for (int j = 0; j <= HIGHEST_SKILL; j++) {
-                if ((j & (1 << i)) == 0) {
+        for (int i = 0; i < 20; i++) {
+            for (int j = 0; j <= (1<<20); j++) {
+                if ((j & (1 << i)) != 0) {
                     f[j] += f[j ^ (1 << i)];
                 }
             }
         }
 
-        int[] twoPowers = new int[MAX_SKILL];
+        int[] twoPowers = new int[100];
         twoPowers[0] = 1;
         for (int i = 1; i < twoPowers.length; i++) {
-            twoPowers[i] = (2 * twoPowers[i - 1]) % MODULUS;
+            twoPowers[i] = (2 * twoPowers[i - 1]);
         }
 
 
-        // for (int i = 0; i < f.length; i++) {
-        //     // if (f[i] != 0)
-        //         System.out.println(i + " " + f[i]);
-        // }
+        for (int i = 0; i < 10; i++) {
+            if (f[i] != 0)
+                System.out.println(i + " " + f[i] + " " + twoPowers[i]);
+        }
 
         int result = 0;
         for (int i = target; i >= 0; i--) {
-            if (Integer.bitCount(f[i] ^ result) % 2 == 1) {
-                result = (result + twoPowers[f[i]]) % MODULUS;
+            // System.out.println(Integer.bitCount(i^ result));
+            if (Integer.bitCount(i ^ result) % 2 == 0) {
+                result = (result + (twoPowers[f[i]] - 1));
             } else {
-                result = (result - twoPowers[f[i]] + MODULUS) % MODULUS;
+                result = (result - (twoPowers[f[i]] - 1));
             }
         }
 
