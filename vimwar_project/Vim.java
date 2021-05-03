@@ -4,116 +4,68 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.ArrayList;
 
-//https://www.geeksforgeeks.org/perfect-sum-problem-print-subsets-given-sum/
-
 public class Vim {
 
-    static boolean[][] dp;
-
-    static void printSubsetsRec(Integer arr[], int i, int sum, ArrayList<Integer> p) {
-        // If we reached end and sum is non-zero. We print
-        // p[] only if arr[0] is equal to sun OR dp[0][sum]
-        // is true.
-        if (i == 0 && sum != 0 && dp[0][sum]) {
-            p.add(arr[i]);
-            System.out.println(p); 
-            p.clear();
-            return;
-        }
-
-        // If sum becomes 0
-        if (i == 0 && sum == 0) {
-            System.out.println(p);
-            p.clear();
-            return;
-        }
-
-        // If given sum can be achieved after ignoring
-        // current element.
-        if (dp[i - 1][sum]) {
-            // Create a new vector to store path
-            ArrayList<Integer> b = new ArrayList<>();
-            b.addAll(p);
-            printSubsetsRec(arr, i - 1, sum, b);
-        }
-
-        // If given sum can be achieved after considering
-        // current element.
-        if (sum >= arr[i] && dp[i - 1][sum - arr[i]]) {
-            p.add(arr[i]);
-            printSubsetsRec(arr, i - 1, sum - arr[i], p);
-        }
-    }
+    static final int MAX_SKILL = 2000000; // 2^20 or 1111 1111 1111 1111 1111
+    static final int HIGHEST_SKILL = 1 << 20;
+    static final int MAX_N = 100000;
+    static final int MAX_M = 20;
+    static final int MODULUS = 1000000007;
+    static int target;
 
     public static void main(String[] args) throws IOException {
         // boring input parsing stuff
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        String[] info = br.readLine().split(" ");
-        int numSoldiers = Integer.parseInt(info[0]);
-        int numSkills = Integer.parseInt(info[1]);
-        int target;
+        String[] nm = br.readLine().split(" ");
 
-        // tracks all soliders and if there were duplicates
-        HashMap<Integer, Integer> map = new HashMap<>();
 
+        int numSoldiers = Integer.parseInt(nm[0]);
+        int numSkills = Integer.parseInt(nm[1]);
+
+        int[] soldiers = new int[numSoldiers];
         for (int i = 0; i < numSoldiers; i++) {
-            int k = Integer.parseInt(br.readLine(), 2);
-            if (map.putIfAbsent(k, 1) != null) {
-                map.put(k, map.get(k) + 1);
-            }
-
+            soldiers[i] = Integer.parseInt(br.readLine(), 2);
         }
         target = Integer.parseInt(br.readLine(), 2);
-
-        // set of unique soliders in an array form
-        Integer[] soldierSet = (Integer[]) map.keySet().toArray(new Integer[1]);
-
-        for (int i = 0; i < soldierSet.length; i++) {
-            if (soldierSet[i] > target) {
-                map.remove(soldierSet[i]);
+        
+        int[] f = new int[MAX_SKILL];
+        
+        for (int i = numSoldiers - 1; i >= 0; i--) {
+            if (soldiers[i] <= target) {
+                f[soldiers[i]]++;
             }
         }
-
-        for (Integer i : soldierSet) {
-            System.out.print(Integer.toString(i) + ", ");
-        }
-        System.out.println();
-        System.out.println(target);
-
-        // amount of soliders x size of each solider, yikes
-        dp = new boolean[1 << 20][21];
-
-        for (int i = 21 - 1; i >= 0; i--) {
-            dp[0][i] = true;
-        }
-
-        for (int i = dp.length - 1; i >= 1; i--) {
-            dp[i][0] = false;
-        }
-
-        for (int i = 1; i <= target; i++) {
-            for (int j = 1; j <= soldierSet.length; j++) {
-                dp[i][j] = dp[i][j - 1];
-                if (i >= soldierSet[j - 1]) {
-                    dp[i][j] = dp[i][j] || dp[i - soldierSet[j - 1]][j - 1];
+        
+        
+        for (int i = 0; i < MAX_M; i++) {
+            for (int j = 0; j <= HIGHEST_SKILL; j++) {
+                if ((j & (1 << i)) == 0) {
+                    f[j] += f[j ^ (1 << i)];
                 }
             }
         }
 
-        ArrayList<Integer> p = new ArrayList<>();
-        printSubsetsRec(soldierSet, soldierSet.length - 1, target, p);
+        int[] twoPowers = new int[MAX_SKILL];
+        twoPowers[0] = 1;
+        for (int i = 1; i < twoPowers.length; i++) {
+            twoPowers[i] = (2 * twoPowers[i - 1]) % MODULUS;
+        }
 
-        // System.out.println(numSoldiers);
-        // System.out.println(numSkills);
 
-        // for (int s : soldiers) System.out.println(s);
-        // System.out.println(target);
+        // for (int i = 0; i < f.length; i++) {
+        //     // if (f[i] != 0)
+        //         System.out.println(i + " " + f[i]);
+        // }
 
-        // most significant bits on the left side
+        int result = 0;
+        for (int i = target; i >= 0; i--) {
+            if (Integer.bitCount(f[i] ^ result) % 2 == 1) {
+                result = (result + twoPowers[f[i]]) % MODULUS;
+            } else {
+                result = (result - twoPowers[f[i]] + MODULUS) % MODULUS;
+            }
+        }
 
-        // cut soliders with extra skills for later
-
-        // duplicates can double the amount of possible outcomes
-
+        System.out.println(result);
     }
 }
