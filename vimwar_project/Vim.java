@@ -1,12 +1,10 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.ArrayList;
 
 public class Vim {
 
-    static final int MAX_SKILL = 2000000; // 2^20 or 1111 1111 1111 1111 1111
+    static final int MAX_SKILL = 2000000; // 2^20 or 1111 1111 1111 1111 1111, although weird index out of bounds :/
     static final int HIGHEST_SKILL = 1 << 20;
     static final int MAX_N = 100000;
     static final int MAX_M = 20;
@@ -14,7 +12,6 @@ public class Vim {
     static int target;
 
     public static void main(String[] args) throws IOException {
-        // boring input parsing stuff
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String[] nm = br.readLine().split(" ");
 
@@ -45,10 +42,10 @@ public class Vim {
             }
         }
 
-        int[] twoPowers = new int[100];
+        int[] twoPowers = new int[MAX_SKILL];
         twoPowers[0] = 1;
         for (int i = 1; i < twoPowers.length; i++) {
-            twoPowers[i] = (2 * twoPowers[i - 1]);
+            twoPowers[i] = (2 * twoPowers[i - 1]) % MODULUS;
         }
 
 
@@ -61,9 +58,9 @@ public class Vim {
         for (int i = target; i >= 0; i--) {
             // System.out.println(Integer.bitCount(i^ result));
             if (Integer.bitCount(i ^ result) % 2 == 0) {
-                result = (result + (twoPowers[f[i]] - 1));
+                result = (result + (twoPowers[f[i]] - 1)) % MODULUS;
             } else {
-                result = (result - (twoPowers[f[i]] - 1));
+                result = (result - (twoPowers[f[i]] - 1) + MODULUS) % MODULUS;
             }
         }
 
