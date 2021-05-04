@@ -62,13 +62,15 @@ public class Vim {
         // + (2^f(i where i is 2 bits away) - 1) and so on 
         int result = 0;
         for (int i = 0; i <= target; i++) {
-            if ((i | target) != target) continue;
-
-            if (Integer.bitCount(i ^ target) % 2 == 0) { // Checks how many bits away i is from the target
-                result = (result + (twoPowers[f[i]] - 1)) % MODULO;
-            } else {
-                result = (result - (twoPowers[f[i]] - 1) + MODULO) % MODULO;
+            // Only consider if i is a valid input
+            if ((i | target) == target) {
+                if (Integer.bitCount(i ^ target) % 2 == 0) { // Checks how many bits away i is from the target
+                    result = (result + (twoPowers[f[i]] - 1)) % MODULO;
+                } else {
+                    result = (result - (twoPowers[f[i]] - 1) + MODULO) % MODULO;
+                }
             }
+
         }
         System.out.println(result);
     }
