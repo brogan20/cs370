@@ -20,6 +20,9 @@ public class Vim {
         }
         int target = Integer.parseInt(br.readLine(), 2);
         
+        // Big credit to: https://stackoverflow.com/questions/31401705/inclusion-exclusion-in-dynamic-programming
+        // Gave us the math needed to implement everything below
+
         // Prepopulate f(i) with all soldiers == i
         // Also skips any soldiers > target as they cannot be used
         int[] f = new int[2000000];
