@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 
 public class Vim {
 
-    static final int MODULO = 10e9 + 7;
+    static final int MODULO = 1000000007;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -48,7 +48,7 @@ public class Vim {
         int[] twoPowers = new int[2000000];
         twoPowers[0] = 1;
         for (int i = 1; i < twoPowers.length; i++) {
-            twoPowers[i] = (2 * twoPowers[i - 1]) % MODULUS;
+            twoPowers[i] = (2 * twoPowers[i - 1]) % MODULO;
         }
 
         
@@ -61,11 +61,13 @@ public class Vim {
         // +(2^f(i where i is 0 bits away from target) - 1) - (2^f(i where i is 1 bit away) - 1)
         // + (2^f(i where i is 2 bits away) - 1) and so on 
         int result = 0;
-        for (int i = target; i >= 0; i--) {
+        for (int i = 0; i <= target; i++) {
+            if ((i | target) != target) continue;
+
             if (Integer.bitCount(i ^ target) % 2 == 0) { // Checks how many bits away i is from the target
-                result = (result + (twoPowers[f[i]] - 1)) % MODULUS;
+                result = (result + (twoPowers[f[i]] - 1)) % MODULO;
             } else {
-                result = (result - (twoPowers[f[i]] - 1) + MODULUS) % MODULUS;
+                result = (result - (twoPowers[f[i]] - 1) + MODULO) % MODULO;
             }
         }
         System.out.println(result);
