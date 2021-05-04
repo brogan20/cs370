@@ -5,9 +5,7 @@ import java.io.InputStreamReader;
 public class Vim {
 
     static final int MAX_SKILL = 2000000; // 2^20 or 1111 1111 1111 1111 1111, although weird index out of bounds :/
-    static final int HIGHEST_SKILL = 1 << 20;
     static final int MAX_N = 100000;
-    static final int MAX_M = 20;
     static final int MODULUS = 1000000007;
     static int target;
 
@@ -49,10 +47,10 @@ public class Vim {
         }
 
 
-        for (int i = 0; i < 10; i++) {
-            if (f[i] != 0)
-                System.out.println(i + " " + f[i] + " " + twoPowers[i]);
-        }
+        // for (int i = 0; i < 10; i++) {
+        //     if (f[i] != 0)
+        //         System.out.println(i + " " + f[i] + " " + twoPowers[i]);
+        // }
 
         int result = 0;
         for (int i = target; i >= 0; i--) {
